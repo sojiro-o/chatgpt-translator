@@ -250,8 +250,16 @@ final class DoubleCopyMonitor: NSObject {
         CGPreflightListenEventAccess()
     }
 
+    /// `true` when the app is launched as the host of an XCTest bundle.
+    /// The permission alert is modal and would block the test runner, so monitoring stays off.
+    static var isRunningUnitTests: Bool {
+        ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+            || NSClassFromString("XCTestCase") != nil
+    }
+
     /// Starts monitoring at app launch if enabled in user defaults, and begins observing settings.
     func startIfEnabled() {
+        guard !Self.isRunningUnitTests else { return }
         performOnMainThread {
             self.observeDefaultsIfNeeded()
             if Defaults[.enableDoubleCopyTranslate] {
