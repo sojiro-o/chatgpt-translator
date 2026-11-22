@@ -429,7 +429,8 @@
 
 - (void)updateRetryButton {
     // Do not show retry button for warning error type.
-    BOOL showRetryButton = self.result.error && (!self.result.isWarningErrorType);
+    // QuickTranslate: allow retrying after any error, including "no result".
+    BOOL showRetryButton = self.result.error != nil;
     self.retryButton.hidden = !showRetryButton;
     self.retryButton.toolTip = NSLocalizedString(@"retry", nil);
 }

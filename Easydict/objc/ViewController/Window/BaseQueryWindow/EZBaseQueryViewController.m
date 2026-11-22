@@ -906,7 +906,9 @@ static BOOL ez_frame_equal_with_tolerance(CGRect lhs, CGRect rhs, CGFloat tolera
             [service.result convertToTraditionalChineseResult];
         }
 
-        BOOL hideResult = !result.manualShow && !result.hasTranslatedResult && result.isWarningErrorType;
+        // QuickTranslate shows a single service, so never fold its result away:
+        // a hidden warning (no result / unsupported language) looks like an empty popup.
+        BOOL hideResult = NO;
         if (hideResult) {
             result.isShowing = NO;
         }
