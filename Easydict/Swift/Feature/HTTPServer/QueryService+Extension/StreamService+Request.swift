@@ -50,7 +50,7 @@ extension StreamService {
 
         let (prehandled, result) = try await prehandleQueryText(text, from: from, to: to)
         if prehandled {
-            logInfo("prehandled query text: \(text.prefix200)")
+            logInfo("prehandled query text length: \(text.count)")
             if let error = result.error {
                 throw error
             }
