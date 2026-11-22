@@ -12,9 +12,10 @@
 
 - (instancetype)init {
     if (self = [super initWithWindowType:EZWindowTypeMini]) {
-        [self standardWindowButton:NSWindowCloseButton].hidden = YES;
+        [self standardWindowButton:NSWindowCloseButton].hidden = NO;
         [self standardWindowButton:NSWindowMiniaturizeButton].hidden = YES;
         [self standardWindowButton:NSWindowZoomButton].hidden = YES;
+        self.titleBar.pinButton.hidden = YES;
     }
     return self;
 }

@@ -29,6 +29,7 @@
 #import "EZToast.h"
 #import "EZWrapView.h"
 #import "NSObject+EZDarkMode.h"
+#import "NSObject+EZWindowType.h"
 #import "EZWebViewManager.h"
 #import <math.h>
 
@@ -877,50 +878,8 @@ static BOOL EZResultHasAnkiContent(EZQueryResult *result) {
 
 /// Setup bottom tool bar buttons.
 - (void)setupBottomToolBarButtons:(EZQueryResult *)result lastView:(NSView *)lastView height:(CGFloat)height {
-    EZAudioButton *audioButton = [[EZAudioButton alloc] init];
-    [self addSubview:audioButton];
-
     BOOL hasTranslatedText = result.translatedText.length > 0;
-    audioButton.enabled = hasTranslatedText;
-
-    audioButton.audioPlayer = self.service.audioPlayer;
-
-    [audioButton setPlayStatus:^(BOOL isPlaying, EZAudioButton *audioButton) {
-        NSString *action = isPlaying ? NSLocalizedString(@"stop_play_audio", nil) : NSLocalizedString(@"play_audio", nil);
-        audioButton.toolTip = [NSString stringWithFormat:@"%@", action];
-    }];
-
-    [audioButton setPlayAudioBlock:^{
-        NSString *text = result.copiedText;
-
-        // For some special case, copied text language is not the queryTargetLanguage, like 龘, Youdao translate.
-        EZLanguage language = [EZAppleService.shared detectTextSync:text];
-        if ([result.serviceTypeWithUniqueIdentifier isEqualToString:EZServiceTypeOpenAI]) {
-            language = result.to;
-        }
-
-        EZServiceType defaultTTSServiceType = MyConfiguration.shared.defaultTTSServiceType;
-        EZQueryService *defaultTTSService = [QueryServiceFactory.shared serviceWithTypeId:defaultTTSServiceType];
-
-        // Determine accent based on user preference if language is English
-        NSString *accentToUse = nil;
-        if ([language isEqualToString:EZLanguageEnglish]) {
-            // Assuming EnglishPronunciationUk is accessible, similar to EZBaseQueryViewController
-            if (MyConfiguration.shared.pronunciation == EnglishPronunciationUk) {
-                accentToUse = @"uk";
-            } else {
-                accentToUse = @"us";
-            }
-        }
-
-        [self.service.audioPlayer playTextAudio:text
-                                       language:language
-                                         accent:accentToUse // Use determined accent
-                                       audioURL:nil
-                              designatedService:defaultTTSService];
-    }];
-
-    audioButton.mas_key = @"result_audioButton";
+    BOOL isMiniWindow = (self.associatedWindowType == EZWindowTypeMini);
 
     EZCopyButton *textCopyButton = [[EZCopyButton alloc] init];
     [self addSubview:textCopyButton];
@@ -936,143 +895,209 @@ static BOOL EZResultHasAnkiContent(EZQueryResult *result) {
     CGFloat audioButtonTopOffset = 6;
     CGFloat buttonPadding = EZAudioButtonRightPadding_1;
 
-    [audioButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        if (lastView) {
-            make.top.equalTo(lastView.mas_bottom).offset(audioButtonTopOffset);
-        } else {
-            make.top.equalTo(self).offset(audioButtonTopOffset);
+    EZOpenLinkButton *linkButton = nil;
+
+    if (isMiniWindow) {
+        self.replaceTextButton = nil;
+
+        [textCopyButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            if (lastView) {
+                make.top.equalTo(lastView.mas_bottom).offset(audioButtonTopOffset);
+            } else {
+                make.top.equalTo(self).offset(audioButtonTopOffset);
+            }
+
+            make.left.offset(audioButtonLeftOffset);
+            make.width.height.mas_equalTo(EZAudioButtonWidthHeight_24);
+        }];
+        lastView = textCopyButton;
+
+        self.bottomViewHeight = audioButtonTopOffset + EZAudioButtonWidthHeight_24 + EZAudioButtonBottomMargin_4;
+
+        height += self.bottomViewHeight;
+        _viewHeight = height;
+    } else {
+        EZAudioButton *audioButton = [[EZAudioButton alloc] init];
+        [self addSubview:audioButton];
+
+        audioButton.enabled = hasTranslatedText;
+
+        audioButton.audioPlayer = self.service.audioPlayer;
+
+        [audioButton setPlayStatus:^(BOOL isPlaying, EZAudioButton *audioButton) {
+            NSString *action = isPlaying ? NSLocalizedString(@"stop_play_audio", nil) : NSLocalizedString(@"play_audio", nil);
+            audioButton.toolTip = [NSString stringWithFormat:@"%@", action];
+        }];
+
+        [audioButton setPlayAudioBlock:^{
+            NSString *text = result.copiedText;
+
+            // For some special case, copied text language is not the queryTargetLanguage, like 龘, Youdao translate.
+            EZLanguage language = [EZAppleService.shared detectTextSync:text];
+            if ([result.serviceTypeWithUniqueIdentifier isEqualToString:EZServiceTypeOpenAI]) {
+                language = result.to;
+            }
+
+            EZServiceType defaultTTSServiceType = MyConfiguration.shared.defaultTTSServiceType;
+            EZQueryService *defaultTTSService = [QueryServiceFactory.shared serviceWithTypeId:defaultTTSServiceType];
+
+            // Determine accent based on user preference if language is English
+            NSString *accentToUse = nil;
+            if ([language isEqualToString:EZLanguageEnglish]) {
+                // Assuming EnglishPronunciationUk is accessible, similar to EZBaseQueryViewController
+                if (MyConfiguration.shared.pronunciation == EnglishPronunciationUk) {
+                    accentToUse = @"uk";
+                } else {
+                    accentToUse = @"us";
+                }
+            }
+
+            [self.service.audioPlayer playTextAudio:text
+                                           language:language
+                                             accent:accentToUse // Use determined accent
+                                           audioURL:nil
+                                  designatedService:defaultTTSService];
+        }];
+
+        audioButton.mas_key = @"result_audioButton";
+
+        [audioButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            if (lastView) {
+                make.top.equalTo(lastView.mas_bottom).offset(audioButtonTopOffset);
+            } else {
+                make.top.equalTo(self).offset(audioButtonTopOffset);
+            }
+
+            make.left.offset(audioButtonLeftOffset);
+            make.width.height.mas_equalTo(EZAudioButtonWidthHeight_24);
+        }];
+        lastView = audioButton;
+
+        self.bottomViewHeight = audioButtonTopOffset + EZAudioButtonWidthHeight_24 + EZAudioButtonBottomMargin_4;
+
+        height += self.bottomViewHeight;
+        _viewHeight = height;
+        //    MMLogInfo(@"word result view height: %.1f", height);
+
+        [textCopyButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(audioButton.mas_right).offset(buttonPadding);
+            make.width.height.bottom.equalTo(audioButton);
+        }];
+
+        linkButton = [[EZOpenLinkButton alloc] init];
+        [self addSubview:linkButton];
+
+        NSImage *linkImage = [NSImage ez_imageWithSymbolName:@"link"];
+        linkButton.image = linkImage;
+
+        NSString *toolTip = NSLocalizedString(@"open_web_link", nil);
+        if (result.serviceTypeWithUniqueIdentifier == EZServiceTypeAppleDictionary) {
+            toolTip = NSLocalizedString(@"open_in_apple_dictionary", nil);
+        }
+        linkButton.toolTip = toolTip;
+
+        linkButton.link = [self.service wordLink:result.queryModel];
+
+        [linkButton executeLight:^(NSButton *linkButton) {
+            linkButton.image = [linkButton.image imageWithTintColor:[NSColor ez_imageTintLightColor]];
+        } dark:^(NSButton *linkButton) {
+            linkButton.image = [linkButton.image imageWithTintColor:[NSColor ez_imageTintDarkColor]];
+        }];
+        linkButton.mas_key = @"result_linkButton";
+
+        [linkButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(textCopyButton.mas_right).offset(buttonPadding);
+            make.width.height.bottom.equalTo(audioButton);
+        }];
+
+        EZReplaceTextButton *replaceTextButton = [[EZReplaceTextButton alloc] init];
+        [self addSubview:replaceTextButton];
+        replaceTextButton.hidden = !result.showReplaceButton;
+        replaceTextButton.enabled = hasTranslatedText;
+        self.replaceTextButton = replaceTextButton;
+
+        [replaceTextButton setClickBlock:^(EZButton *button) {
+            NSString *replacedText = result.copiedText;
+            EZReplaceTextButton *replaceTextButton = (EZReplaceTextButton *)button;
+            [replaceTextButton replaceSelectedText:replacedText];
+
+            EZBaseQueryViewController *queryViewController = EZWindowManager.shared.floatingWindow.queryViewController;
+            [queryViewController disableReplaceTextButton];
+        }];
+        replaceTextButton.mas_key = @"replaceTextButton";
+
+        [replaceTextButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(linkButton.mas_right).offset(buttonPadding);
+            make.width.height.bottom.equalTo(audioButton);
+        }];
+
+        NSView *rightmostButton = result.showReplaceButton ? (NSView *)replaceTextButton : (NSView *)linkButton;
+
+        BOOL shouldShowAnkiButton = MyConfiguration.shared.enableAnkiConnect &&
+                                    EZResultHasAnkiContent(result) &&
+                                    (result.wordResult || EZResultNeedsDictionaryHTMLHeight(result));
+        if (shouldShowAnkiButton) {
+            EZSymbolImageButton *ankiButton = [EZSymbolImageButton buttonWithSybolImageName:AnkiConnectClient.addNoteButtonSymbolName];
+            [self addSubview:ankiButton];
+            ankiButton.enabled = YES;
+            ankiButton.toolTip = NSLocalizedString(@"anki.connect.add_button", nil);
+            ankiButton.mas_key = @"result_ankiButton";
+
+            mm_weakify(ankiButton);
+            [ankiButton setClickBlock:^(EZButton *_Nonnull button) {
+                button.enabled = NO;
+                MMLogInfo(@"AnkiConnect add button clicked: %@", result.queryText);
+                [AnkiConnectClient.shared addNoteWith:result completion:^(BOOL success, NSString *_Nonnull message) {
+                    mm_strongify(ankiButton);
+                    ankiButton.enabled = !success;
+                    if (success) {
+                        MMLogInfo(@"AnkiConnect add note success: %@", result.queryText);
+                    } else {
+                        MMLogError(@"AnkiConnect add note failed: %@", message);
+                    }
+                    [EZToast showText:message toastPostion:CTPositionMouse];
+                }];
+            }];
+
+            [ankiButton mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.left.equalTo(rightmostButton.mas_right).offset(buttonPadding);
+                make.width.height.bottom.equalTo(audioButton);
+            }];
+
+            rightmostButton = ankiButton;
         }
 
-        make.left.offset(audioButtonLeftOffset);
-        make.width.height.mas_equalTo(EZAudioButtonWidthHeight_24);
-    }];
-    lastView = audioButton;
+        // Markdown rendering toggle, only on streaming (AI/LLM) services.
+        if ([self.service isStream]) {
+            EDMarkdownToggleButton *markdownToggleButton = [[EDMarkdownToggleButton alloc] init];
+            [self addSubview:markdownToggleButton];
+            markdownToggleButton.markdownEnabled = result.isMarkdownRenderingEnabled;
+            markdownToggleButton.enabled = hasTranslatedText;
+            markdownToggleButton.mas_key = @"result_markdownToggleButton";
 
-    self.bottomViewHeight = audioButtonTopOffset + EZAudioButtonWidthHeight_24 + EZAudioButtonBottomMargin_4;
+            mm_weakify(self);
+            markdownToggleButton.clickAction = ^{
+                mm_strongify(self);
+                [result toggleMarkdownRendering];
 
-    height += self.bottomViewHeight;
-    _viewHeight = height;
-    //    MMLogInfo(@"word result view height: %.1f", height);
+                // Cross-fade the content swap so toggling Markdown does not flash.
+                self.wantsLayer = YES;
+                CATransition *fade = [CATransition animation];
+                fade.type = kCATransitionFade;
+                fade.duration = 0.2;
+                fade.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+                [self.layer addAnimation:fade forKey:@"EDMarkdownToggleFade"];
 
+                EZBaseQueryViewController *queryViewController =
+                    EZWindowManager.shared.floatingWindow.queryViewController;
+                [queryViewController updateCellWithResult:result reloadData:YES];
+            };
 
-    [textCopyButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(audioButton.mas_right).offset(buttonPadding);
-        make.width.height.bottom.equalTo(audioButton);
-    }];
-
-    EZOpenLinkButton *linkButton = [[EZOpenLinkButton alloc] init];
-    [self addSubview:linkButton];
-
-    NSImage *linkImage = [NSImage ez_imageWithSymbolName:@"link"];
-    linkButton.image = linkImage;
-
-    NSString *toolTip = NSLocalizedString(@"open_web_link", nil);
-    if (result.serviceTypeWithUniqueIdentifier == EZServiceTypeAppleDictionary) {
-        toolTip = NSLocalizedString(@"open_in_apple_dictionary", nil);
-    }
-    linkButton.toolTip = toolTip;
-
-    linkButton.link = [self.service wordLink:result.queryModel];
-
-    [linkButton executeLight:^(NSButton *linkButton) {
-        linkButton.image = [linkButton.image imageWithTintColor:[NSColor ez_imageTintLightColor]];
-    } dark:^(NSButton *linkButton) {
-        linkButton.image = [linkButton.image imageWithTintColor:[NSColor ez_imageTintDarkColor]];
-    }];
-    linkButton.mas_key = @"result_linkButton";
-
-    [linkButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(textCopyButton.mas_right).offset(buttonPadding);
-        make.width.height.bottom.equalTo(audioButton);
-    }];
-
-    EZReplaceTextButton *replaceTextButton = [[EZReplaceTextButton alloc] init];
-    [self addSubview:replaceTextButton];
-    replaceTextButton.hidden = !result.showReplaceButton;
-    replaceTextButton.enabled = hasTranslatedText;
-    self.replaceTextButton = replaceTextButton;
-
-    [replaceTextButton setClickBlock:^(EZButton *button) {
-        NSString *replacedText = result.copiedText;
-        EZReplaceTextButton *replaceTextButton = (EZReplaceTextButton *)button;
-        [replaceTextButton replaceSelectedText:replacedText];
-
-        EZBaseQueryViewController *queryViewController = EZWindowManager.shared.floatingWindow.queryViewController;
-        [queryViewController disableReplaceTextButton];
-    }];
-    replaceTextButton.mas_key = @"replaceTextButton";
-
-    [replaceTextButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(linkButton.mas_right).offset(buttonPadding);
-        make.width.height.bottom.equalTo(audioButton);
-    }];
-
-    NSView *rightmostButton = result.showReplaceButton ? (NSView *)replaceTextButton : (NSView *)linkButton;
-
-    BOOL shouldShowAnkiButton = MyConfiguration.shared.enableAnkiConnect &&
-                                EZResultHasAnkiContent(result) &&
-                                (result.wordResult || EZResultNeedsDictionaryHTMLHeight(result));
-    if (shouldShowAnkiButton) {
-        EZSymbolImageButton *ankiButton = [EZSymbolImageButton buttonWithSybolImageName:AnkiConnectClient.addNoteButtonSymbolName];
-        [self addSubview:ankiButton];
-        ankiButton.enabled = YES;
-        ankiButton.toolTip = NSLocalizedString(@"anki.connect.add_button", nil);
-        ankiButton.mas_key = @"result_ankiButton";
-
-        mm_weakify(ankiButton);
-        [ankiButton setClickBlock:^(EZButton *_Nonnull button) {
-            button.enabled = NO;
-            MMLogInfo(@"AnkiConnect add button clicked: %@", result.queryText);
-            [AnkiConnectClient.shared addNoteWith:result completion:^(BOOL success, NSString *_Nonnull message) {
-                mm_strongify(ankiButton);
-                ankiButton.enabled = !success;
-                if (success) {
-                    MMLogInfo(@"AnkiConnect add note success: %@", result.queryText);
-                } else {
-                    MMLogError(@"AnkiConnect add note failed: %@", message);
-                }
-                [EZToast showText:message toastPostion:CTPositionMouse];
+            [markdownToggleButton mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.left.equalTo(rightmostButton.mas_right).offset(buttonPadding);
+                make.width.height.bottom.equalTo(audioButton);
             }];
-        }];
-
-        [ankiButton mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.equalTo(rightmostButton.mas_right).offset(buttonPadding);
-            make.width.height.bottom.equalTo(audioButton);
-        }];
-
-        rightmostButton = ankiButton;
-    }
-
-    // Markdown rendering toggle, only on streaming (AI/LLM) services.
-    if ([self.service isStream]) {
-        EDMarkdownToggleButton *markdownToggleButton = [[EDMarkdownToggleButton alloc] init];
-        [self addSubview:markdownToggleButton];
-        markdownToggleButton.markdownEnabled = result.isMarkdownRenderingEnabled;
-        markdownToggleButton.enabled = hasTranslatedText;
-        markdownToggleButton.mas_key = @"result_markdownToggleButton";
-
-        mm_weakify(self);
-        markdownToggleButton.clickAction = ^{
-            mm_strongify(self);
-            [result toggleMarkdownRendering];
-
-            // Cross-fade the content swap so toggling Markdown does not flash.
-            self.wantsLayer = YES;
-            CATransition *fade = [CATransition animation];
-            fade.type = kCATransitionFade;
-            fade.duration = 0.2;
-            fade.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-            [self.layer addAnimation:fade forKey:@"EDMarkdownToggleFade"];
-
-            EZBaseQueryViewController *queryViewController =
-                EZWindowManager.shared.floatingWindow.queryViewController;
-            [queryViewController updateCellWithResult:result reloadData:YES];
-        };
-
-        [markdownToggleButton mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.equalTo(rightmostButton.mas_right).offset(buttonPadding);
-            make.width.height.bottom.equalTo(audioButton);
-        }];
+        }
     }
 
     // webView height need time to calculate, and the value will be called back later.

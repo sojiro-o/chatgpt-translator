@@ -65,6 +65,16 @@ typedef NS_ENUM(NSInteger, EZTitlebarButtonType) {
     [defaultCenter addObserver:self selector:@selector(updateTitlebar) name:NSNotification.languagePreferenceChanged object:nil];
 }
 
+- (BOOL)isSimplifiedMiniTitlebar {
+    if (self.associatedWindowType == EZWindowTypeMini) {
+        return YES;
+    }
+    if ([self.window isKindOfClass:[EZBaseQueryWindow class]]) {
+        return ((EZBaseQueryWindow *)self.window).windowType == EZWindowTypeMini;
+    }
+    return NO;
+}
+
 - (void)updateTitlebar {
     /**
      Fix appcenter issue, seems cannot remove self.subviews 🤔
@@ -86,6 +96,11 @@ typedef NS_ENUM(NSInteger, EZTitlebarButtonType) {
     
     [self addSubview:self.pinButton];
     [self addSubview:self.stackView];
+
+    if ([self isSimplifiedMiniTitlebar]) {
+        self.pinButton.hidden = YES;
+        self.stackView.hidden = YES;
+    }
     
     [self setNeedsUpdateConstraints:YES];
 }
@@ -104,17 +119,22 @@ typedef NS_ENUM(NSInteger, EZTitlebarButtonType) {
         make.top.equalTo(self).offset(topOffset);
         make.right.equalTo(self).offset(-margin);
     }];
-    
-    if (MyConfiguration.shared.showQuickActionButton) {
-        [self.stackView addArrangedSubview:self.quickActionButton];
+
+    if ([self isSimplifiedMiniTitlebar]) {
+        self.pinButton.hidden = YES;
+        self.stackView.hidden = YES;
+    } else {
+        if (MyConfiguration.shared.showQuickActionButton) {
+            [self.stackView addArrangedSubview:self.quickActionButton];
+        }
+        
+        for (NSNumber *typeNumber in [self shortcutButtonTypes]) {
+            EZTitlebarButtonType buttonType = typeNumber.integerValue;
+            EZOpenLinkButton *button = [self buttonWithType:buttonType];
+            [self.stackView addArrangedSubview:button];
+        }
+        [self updateShortcutButtonsToolTip];
     }
-    
-    for (NSNumber *typeNumber in [self shortcutButtonTypes]) {
-        EZTitlebarButtonType buttonType = typeNumber.integerValue;
-        EZOpenLinkButton *button = [self buttonWithType:buttonType];
-        [self.stackView addArrangedSubview:button];
-    }
-    [self updateShortcutButtonsToolTip];
     
     [super updateConstraints];
 }

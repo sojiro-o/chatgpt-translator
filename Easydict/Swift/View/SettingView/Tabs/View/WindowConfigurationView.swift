@@ -16,16 +16,17 @@ struct WindowConfigurationView: View {
 
     init(windowType: EZWindowType) {
         self.windowType = windowType
+        let defaultVisibility = WindowConfigurationKey.defaultVisibility(for: windowType)
 
         _showInputTextField = .init(
             windowConfigurationKey(
-                .inputFieldCellVisible, windowType: windowType, defaultValue: true
+                .inputFieldCellVisible, windowType: windowType, defaultValue: defaultVisibility
             )
         )
 
         _showSelectLanguageTextField = .init(
             windowConfigurationKey(
-                .selectLanguageCellVisible, windowType: windowType, defaultValue: true
+                .selectLanguageCellVisible, windowType: windowType, defaultValue: defaultVisibility
             )
         )
     }

@@ -7,9 +7,11 @@
 //
 
 #import "EZBaseQueryWindow.h"
+#import <Carbon/Carbon.h>
 #import "EZTitlebar.h"
 #import "EZWindowManager.h"
 #import "NSImage+EZResize.h"
+#import "NSObject+EZWindowType.h"
 
 
 @interface EZBaseQueryWindow () <NSWindowDelegate, NSToolbarDelegate>
@@ -62,6 +64,7 @@
     NSView *titleView = themeView.subviews.lastObject;
     
     self.titleBar = [[EZTitlebar alloc] initWithFrame:CGRectMake(0, 0, self.width, 30)];
+    self.titleBar.associatedWindowType = self.windowType;
     [titleView addSubview:self.titleBar];
     [self.titleBar mas_makeConstraints:^(MASConstraintMaker *make) {
         make.edges.equalTo(titleView);
@@ -116,6 +119,22 @@
 
 - (NSTimeInterval)animationResizeTime:(NSRect)newFrame {
     return EZUpdateTableViewRowHeightAnimationDuration;
+}
+
+- (void)cancelOperation:(id)sender {
+    if (self.windowType == EZWindowTypeMain) {
+        [self close];
+    } else {
+        [[EZWindowManager shared] closeFloatingWindow:self.windowType];
+    }
+}
+
+- (void)keyDown:(NSEvent *)event {
+    if (event.keyCode == kVK_Escape) {
+        [self cancelOperation:self];
+        return;
+    }
+    [super keyDown:event];
 }
 
 

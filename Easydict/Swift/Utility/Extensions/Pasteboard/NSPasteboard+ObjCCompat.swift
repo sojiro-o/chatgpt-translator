@@ -17,5 +17,6 @@ extension NSPasteboard {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(string, forType: .string)
+        PasteboardSelfWriteTracker.shared.recordSelfWrite(changeCount: pasteboard.changeCount)
     }
 }

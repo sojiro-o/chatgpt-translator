@@ -72,6 +72,7 @@ extension MyConfiguration {
 
 extension MyConfiguration {
     func showInputTextField(key: WindowConfigurationKey, windowType: EZWindowType) -> Bool {
-        Defaults[windowConfigurationKey(key, windowType: windowType, defaultValue: true)]
+        let defaultValue = WindowConfigurationKey.defaultVisibility(for: windowType)
+        return Defaults[windowConfigurationKey(key, windowType: windowType, defaultValue: defaultValue)]
     }
 }

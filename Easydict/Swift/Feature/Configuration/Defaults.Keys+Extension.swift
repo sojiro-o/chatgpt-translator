@@ -32,7 +32,15 @@ extension Defaults.Keys {
         default: EZLanguageManager.shared().systemPreferredTwoLanguages[1]
     )
 
-    static let autoShowQueryIcon = Key<Bool>("EZConfiguration_kAutoSelectTextKey", default: true)
+    static let autoShowQueryIcon = Key<Bool>("EZConfiguration_kAutoSelectTextKey", default: false)
+    static let enableDoubleCopyTranslate = Key<Bool>(
+        "EZConfiguration_kEnableDoubleCopyTranslateKey",
+        default: true
+    )
+    static let doubleCopyTranslateInterval = Key<Int>(
+        "EZConfiguration_kDoubleCopyTranslateIntervalKey",
+        default: 600
+    )
     static let autoShowQueryIconExcludedLanguage = Key<Language>(
         "EZConfiguration_kAutoShowQueryIconExcludedLanguageKey",
         default: Defaults[.firstLanguage]
@@ -81,13 +89,13 @@ extension Defaults.Keys {
         "EZConfiguration_kPreferYoudaoTTSForEnglishWordKey",
         default: true
     )
-    static let showGoogleQuickLink = Key<Bool>("EZConfiguration_kShowGoogleLinkKey", default: true)
-    static let showEudicQuickLink = Key<Bool>("EZConfiguration_kShowEudicLinkKey", default: true)
+    static let showGoogleQuickLink = Key<Bool>("EZConfiguration_kShowGoogleLinkKey", default: false)
+    static let showEudicQuickLink = Key<Bool>("EZConfiguration_kShowEudicLinkKey", default: false)
     static let showAppleDictionaryQuickLink = Key<Bool>(
-        "EZConfiguration_kShowAppleDictionaryLinkKey", default: true
+        "EZConfiguration_kShowAppleDictionaryLinkKey", default: false
     )
     static let showQuickActionButton = Key<Bool>(
-        "EZConfiguration_kShowSettingQuickLink", default: true
+        "EZConfiguration_kShowSettingQuickLink", default: false
     )
     static let hideMenuBarIcon = Key<Bool>("EZConfiguration_kHideMenuBarIconKey", default: false)
     static let includeBetaUpdates = Key<Bool>("EZConfiguration_kIncludeBetaUpdatesKey", default: false)
@@ -194,7 +202,7 @@ extension Defaults.Keys {
 
     static let enableForceGetSelectedText = Key<Bool>(
         "EZConfiguration_kForceAutoGetSelectedText",
-        default: true
+        default: false
     )
     static var forceGetSelectedTextType = Key<ForceGetSelectedTextType>(
         "EZConfiguration_kForceGetSelectedTextTypeKey",

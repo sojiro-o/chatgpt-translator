@@ -300,6 +300,7 @@
         self.serviceModelButton.clickBlock = nil;
     }
     
+    self.wordResultView.associatedWindowType = self.associatedWindowType;
     self.wordResultView.service = service;
     [self.wordResultView refreshWithResult:result];
     

@@ -49,6 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)silentScreenshotOCR;
 - (void)screenshotOCR;
 - (void)pasteboardTranslate:(EZWindowType)windowType;
+- (void)doubleCopyTranslateText:(NSString *)text;
 
 #pragma mark - Application Shorcut
 
