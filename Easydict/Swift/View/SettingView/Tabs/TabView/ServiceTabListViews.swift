@@ -136,7 +136,7 @@ private struct ServiceItemView: View {
             showClaudeCodeRiskAlert = true
         } else if item.type == .codexCLI {
             guard let metadata = QueryServiceFactory.shared.metadata(withTypeId: item.id) else { return }
-            codexAccessMode = Defaults[CodexAccessMode.key(uuid: metadata.uuid)]
+            codexAccessMode = CodexAccessMode.resolved(uuid: metadata.uuid)
             showCodexCLIRiskAlert = true
         } else if item.type == .gitHubCopilot {
             showGitHubCopilotRiskAlert = true

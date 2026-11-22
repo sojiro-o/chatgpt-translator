@@ -8846,7 +8846,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "CLI error: %@"
+            "value" : "Translation error: %@"
           }
         },
         "es" : {
@@ -8858,7 +8858,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "CLI エラー: %@"
+            "value" : "翻訳エラー: %@"
           }
         },
         "sk" : {
@@ -9360,7 +9360,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Codex usage limit reached."
+            "value" : "ChatGPT usage limit reached. Please try again after your limit resets."
           }
         },
         "es" : {
@@ -9372,7 +9372,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Codex の利用上限に達しました。"
+            "value" : "ChatGPT の利用上限に達しました。上限がリセットされてから再試行してください。"
           }
         },
         "sk" : {
@@ -21682,6 +21682,53 @@
         }
       }
     },
+    "service.codex_cli.isolation_failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codex isolation checks failed. No text was sent."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudieron verificar las restricciones de Codex. No se envió ningún texto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codex の隔離状態を確認できませんでした。原文は送信されていません。"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontrola izolácie Codexu zlyhala. Nebol odoslaný žiadny text."
+          }
+        },
+        "ur" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codex کی علیحدگی کی جانچ ناکام ہو گئی۔ کوئی متن نہیں بھیجا گیا۔"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codex 隔离检查未通过，未发送文本。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codex 隔離檢查未通過，未傳送文字。"
+          }
+        }
+      }
+    },
     "service.codex_cli.local.unsupported_effort" : {
       "localizations" : {
         "en" : {
@@ -21733,43 +21780,43 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ChatGPT sign-in mode lets Easydict download an official Codex component on demand and authorize your ChatGPT account through the official sign-in flow. You do not need to install the CLI yourself. Enabling this service alone does not download the component or sign you in. OpenAI may change availability, account rules, or policies."
+            "value" : "ChatGPT sign-in mode lets QuickTranslate download an official Codex component on demand and authorize your ChatGPT account through the official sign-in flow. You do not need to install the CLI yourself. Enabling this service alone does not download the component or sign you in. OpenAI may change availability, account rules, or policies."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "El modo de inicio de sesión de ChatGPT permite a Easydict descargar un componente oficial de Codex cuando se necesite y autorizar tu cuenta mediante el inicio de sesión oficial. No necesitas instalar la CLI. Activar el servicio por sí solo no descarga el componente ni inicia sesión. OpenAI puede cambiar la disponibilidad, las reglas de cuenta o las políticas."
+            "value" : "El modo de inicio de sesión de ChatGPT permite a QuickTranslate descargar un componente oficial de Codex cuando se necesite y autorizar tu cuenta mediante el inicio de sesión oficial. No necesitas instalar la CLI. Activar el servicio por sí solo no descarga el componente ni inicia sesión. OpenAI puede cambiar la disponibilidad, las reglas de cuenta o las políticas."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ChatGPT ログインモードでは、Easydict が必要に応じて公式 Codex コンポーネントをダウンロードし、公式ログイン手順で ChatGPT アカウントを認証します。CLI の手動インストールは不要です。サービスを有効にするだけではダウンロードやログインは行いません。利用条件やアカウント規則、ポリシーは OpenAI により変更される場合があります。"
+            "value" : "ChatGPT ログインモードでは、QuickTranslate が必要に応じて公式 Codex コンポーネントをダウンロードし、公式ログイン手順で ChatGPT アカウントを認証します。CLI の手動インストールは不要です。サービスを有効にするだけではダウンロードやログインは行いません。利用条件やアカウント規則、ポリシーは OpenAI により変更される場合があります。"
           }
         },
         "sk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "V režime prihlásenia cez ChatGPT môže Easydict podľa potreby stiahnuť oficiálny komponent Codex a autorizovať účet ChatGPT cez oficiálne prihlásenie. CLI nemusíte inštalovať sami. Samotné zapnutie služby komponent nestiahne ani vás neprihlási. OpenAI môže zmeniť dostupnosť, pravidlá účtu alebo zásady."
+            "value" : "V režime prihlásenia cez ChatGPT môže QuickTranslate podľa potreby stiahnuť oficiálny komponent Codex a autorizovať účet ChatGPT cez oficiálne prihlásenie. CLI nemusíte inštalovať sami. Samotné zapnutie služby komponent nestiahne ani vás neprihlási. OpenAI môže zmeniť dostupnosť, pravidlá účtu alebo zásady."
           }
         },
         "ur" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ChatGPT سائن اِن موڈ میں Easydict ضرورت پڑنے پر سرکاری Codex جزو ڈاؤن لوڈ کر سکتا ہے اور سرکاری سائن اِن کے ذریعے آپ کے ChatGPT اکاؤنٹ کی اجازت حاصل کر سکتا ہے۔ آپ کو خود CLI نصب کرنے کی ضرورت نہیں۔ صرف یہ سروس فعال کرنے سے جزو ڈاؤن لوڈ نہیں ہوتا اور نہ ہی آپ سائن اِن ہوتے ہیں۔ OpenAI دستیابی، اکاؤنٹ کے قواعد یا پالیسیاں بدل سکتا ہے۔"
+            "value" : "ChatGPT سائن اِن موڈ میں QuickTranslate ضرورت پڑنے پر سرکاری Codex جزو ڈاؤن لوڈ کر سکتا ہے اور سرکاری سائن اِن کے ذریعے آپ کے ChatGPT اکاؤنٹ کی اجازت حاصل کر سکتا ہے۔ آپ کو خود CLI نصب کرنے کی ضرورت نہیں۔ صرف یہ سروس فعال کرنے سے جزو ڈاؤن لوڈ نہیں ہوتا اور نہ ہی آپ سائن اِن ہوتے ہیں۔ OpenAI دستیابی، اکاؤنٹ کے قواعد یا پالیسیاں بدل سکتا ہے۔"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ChatGPT 登录模式由 Easydict 按需下载官方 Codex 组件，并通过官方登录流程授权你的 ChatGPT 账户，无需自行安装 CLI。仅启用服务不会下载组件或启动登录。OpenAI 未来可能调整服务可用性、账户规则或政策。"
+            "value" : "ChatGPT 登录模式由 QuickTranslate 按需下载官方 Codex 组件，并通过官方登录流程授权你的 ChatGPT 账户，无需自行安装 CLI。仅启用服务不会下载组件或启动登录。OpenAI 未来可能调整服务可用性、账户规则或政策。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ChatGPT 登入模式由 Easydict 按需下載官方 Codex 元件，並透過官方登入流程授權你的 ChatGPT 帳戶，無需自行安裝 CLI。僅啟用服務不會下載元件或啟動登入。OpenAI 未來可能調整服務可用性、帳戶規則或政策。"
+            "value" : "ChatGPT 登入模式由 QuickTranslate 按需下載官方 Codex 元件，並透過官方登入流程授權你的 ChatGPT 帳戶，無需自行安裝 CLI。僅啟用服務不會下載元件或啟動登入。OpenAI 未來可能調整服務可用性、帳戶規則或政策。"
           }
         }
       }
@@ -21779,7 +21826,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open Settings → Services → Codex and sign in to ChatGPT, then try again."
+            "value" : "Not signed in to ChatGPT. Open Settings and sign in to ChatGPT, then try again."
           }
         },
         "es" : {
@@ -21791,7 +21838,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「設定 → サービス → Codex」で ChatGPT にログインしてから再試行してください。"
+            "value" : "ChatGPT にログインしていません。設定画面で ChatGPT にログインしてから再試行してください。"
           }
         },
         "sk" : {
@@ -22745,7 +22792,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ChatGPT sign-in status could not be confirmed. Check your connection and retry."
+            "value" : "ChatGPT authentication failed. Check your connection or sign in again in Settings."
           }
         },
         "es" : {
@@ -22757,7 +22804,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ChatGPTのログイン状態を確認できませんでした。接続を確認して再試行してください。"
+            "value" : "ChatGPT の認証に失敗しました。ネットワーク接続を確認するか、設定画面から再度ログインしてください。"
           }
         },
         "sk" : {
@@ -23067,7 +23114,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Codex did not return a valid completed translation. Please try again."
+            "value" : "Could not receive a valid translation from ChatGPT. Check your connection and try again."
           }
         },
         "es" : {
@@ -23079,7 +23126,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Codexから有効な翻訳結果を取得できませんでした。もう一度お試しください。"
+            "value" : "ChatGPT から有効な翻訳結果を取得できませんでした。ネットワーク接続を確認して再試行してください。"
           }
         },
         "sk" : {
@@ -23757,7 +23804,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Codex timed out. Please try again."
+            "value" : "The request to ChatGPT timed out. Please try again."
           }
         },
         "es" : {
@@ -23769,7 +23816,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Codexがタイムアウトしました。もう一度お試しください。"
+            "value" : "ChatGPT との通信がタイムアウトしました。しばらくしてから再試行してください。"
           }
         },
         "sk" : {

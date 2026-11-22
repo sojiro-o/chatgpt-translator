@@ -23,14 +23,9 @@ extension AppPathManager {
         codexDirectory.appendingPathComponent("state", isDirectory: true)
     }
 
-    /// Older roots checked by `CodexDirectoryMigration`, newest first.
+    /// Older roots checked by `CodexDirectoryMigration`, disabled in QuickTranslate
+    /// so upstream Easydict's managed directory is never moved.
     var legacyCodexDirectories: [URL] {
-        let bundleScopedDirectory = appSupportDirectory
-            .appendingPathComponent("codex-managed", isDirectory: true)
-        let sharedDirectory = appSupportDirectory
-            .deletingLastPathComponent()
-            .appendingPathComponent("Easydict", isDirectory: true)
-            .appendingPathComponent("codex-managed", isDirectory: true)
-        return [bundleScopedDirectory, sharedDirectory]
+        []
     }
 }
