@@ -17,9 +17,10 @@ enum CodexRuntimeRelease: String, Codable, CaseIterable, Sendable {
 
     // MARK: Internal
 
-    static var current: Self {
-        selected(osMajorVersion: ProcessInfo.processInfo.operatingSystemVersion.majorVersion)
-    }
+    /// QuickTranslate follows upstream Easydict (559ae292): the official 0.153.4 component
+    /// runs on macOS 13+, and the legacy catalog only offers gpt-5.5, which ChatGPT
+    /// accounts can no longer use with Codex.
+    static var current: Self { .modern }
 
     var defaultModel: String {
         switch self {
@@ -91,7 +92,7 @@ struct CodexRuntimeDescriptor: Sendable {
         )
         guard let version = manifest.versions[release.rawValue],
               let package = version.packages[architecture.rawValue],
-              version.minimumOS == (release == .modern ? 15 : 13),
+              version.minimumOS == 13,
               package.target == "\(architecture.rawValue)-apple-darwin"
         else { throw CodexManagedError.componentMissing }
         return Self(

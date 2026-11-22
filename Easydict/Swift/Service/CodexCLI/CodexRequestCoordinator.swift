@@ -19,7 +19,14 @@ struct CodexServiceConfiguration: Equatable {
     init(uuid: String) {
         self.uuid = uuid
         self.mode = CodexAccessMode.resolved(uuid: uuid)
-        self.model = Defaults[Self.modelKey(uuid: uuid, mode: mode)]
+        let storedModel = Defaults[Self.modelKey(uuid: uuid, mode: mode)]
+        // Fall back to the catalog default when a saved model is no longer offered
+        // (for example gpt-5.5 saved by the old macOS 13/14 component).
+        if mode == .managed, !CodexManagedRuntime.bundledModelNames.contains(storedModel) {
+            self.model = CodexManagedRuntime.defaultModel
+        } else {
+            self.model = storedModel
+        }
         self.effort = Defaults[Self.effortKey(uuid: uuid, mode: mode)]
     }
 

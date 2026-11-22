@@ -59,7 +59,12 @@ struct CodexManagedRuntime {
 
     static var defaultModel: String { CodexRuntimeRelease.current.defaultModel }
 
-    static var bundledModelNames: [String] { bundledCatalog?.models.map(\.slug) ?? [] }
+    /// Models in the bundled catalog that ChatGPT accounts can no longer use with Codex.
+    static let unsupportedChatGPTModels: Set<String> = ["gpt-5.5"]
+
+    static var bundledModelNames: [String] {
+        (bundledCatalog?.models.map(\.slug) ?? []).filter { !unsupportedChatGPTModels.contains($0) }
+    }
 
     let executable: URL
     let home: URL
