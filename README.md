@@ -47,8 +47,8 @@ QuickTranslate は、macOS 向け翻訳アプリ [Easydict](https://github.com/t
 1. GitHub にログインします（Artifacts のダウンロードに必要です）。
 2. リポジトリの [Actions](https://github.com/sojiro-o/chatgpt-translator/actions) を開き、「Build QuickTranslate」の最新の成功した実行を選択します。
 3. Artifacts から `QuickTranslate-<コミット>` をダウンロードします。
-4. ダウンロードした zip ファイルを展開し、`QuickTranslate.app` を「アプリケーション」フォルダへ移動します。
-5. 署名・公証していないため、初回は Finder で `QuickTranslate.app` を右クリックして「開く」を選ぶか、ターミナルで次を実行してから起動します。
+4. ダウンロードした zip を展開すると、中にもう 1 つ `QuickTranslate.zip` が入っています。これも展開して `QuickTranslate.app` を取り出し、「アプリケーション」フォルダへ移動します。
+5. 署名・公証していないため、初回はターミナルで次を実行してから起動します（または、一度開こうとして警告が出たあとに「システム設定 > プライバシーとセキュリティ」の「このまま開く」を押します）。
 
 ```bash
 xattr -dr com.apple.quarantine /Applications/QuickTranslate.app
