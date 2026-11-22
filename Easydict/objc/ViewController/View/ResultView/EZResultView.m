@@ -396,7 +396,9 @@
 //        MMLogInfo(@"show result view height: %@", @(self.height));
     }
     self.result.viewHeight = viewHeight;
-//    MMLogInfo(@"%@, result view height: %@", result.serviceType, @(viewHeight));
+    MMLogWarn(@"[QTDiag] resultView wordHeight=%.1f viewHeight=%.1f showing=%d hasShowing=%d width=%.1f windowType=%ld",
+              wordResultViewHeight, viewHeight, self.result.isShowing, self.result.hasShowingResult, self.width,
+              (long)self.associatedWindowType);
 }
 
 

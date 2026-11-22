@@ -1135,6 +1135,10 @@ static BOOL ez_frame_equal_with_tolerance(CGRect lhs, CGRect rhs, CGFloat tolera
         result.isLoading = !isFinished;
 
         NSIndexSet *indexSet = [self indexSetOfResult:result];
+        // [QTDiag] Temporary diagnostics for the empty-popup issue (no text content is logged).
+        MMLogWarn(@"[QTDiag] updateCell window=%ld rows=%@ showing=%d loading=%d error=%d viewHeight=%.1f id=%@ ids=%@",
+                  (long)self.windowType, indexSet, result.isShowing, result.isLoading, result.error != nil,
+                  result.viewHeight, result.serviceTypeWithUniqueIdentifier, self.serviceTypeIds);
         if (indexSet) {
             [rowIndexes addIndexes:indexSet];
         }
@@ -1844,6 +1848,9 @@ static BOOL ez_frame_equal_with_tolerance(CGRect lhs, CGRect rhs, CGFloat tolera
 
     CGFloat tableViewHeight = [self getScrollViewContentHeight];
     CGFloat height = [self getRestrainedScrollViewHeight:tableViewHeight];
+    MMLogWarn(@"[QTDiag] applyWindowHeight window=%ld rows=%ld contentHeight=%.1f restrained=%.1f frame=%@",
+              (long)self.windowType, (long)[self numberOfRowsInTableView:self.tableView], tableViewHeight, height,
+              NSStringFromRect(window.frame));
     //    MMLogInfo(@"getRestrainedScrollViewHeight: %@", @(height));
 
     CGSize maxWindowSize = [EZLayoutManager.shared maximumWindowSize:self.windowType];
