@@ -96,6 +96,7 @@ static EZWindowManager *_instance;
 
 - (void)setupEventMonitor {
     [self.eventMonitor startMonitor];
+    [[DoubleCopyMonitor shared] startIfEnabled];
 
     mm_weakify(self);
     [self.eventMonitor setSelectedTextBlock:^(NSString *_Nonnull selectedText) {
@@ -346,7 +347,7 @@ static EZWindowManager *_instance;
         queryText = [queryText removeBooksExcerptInfo];
     }
         
-    self.selectedText = queryText;
+    self.selectedText = (actionType == EZActionTypePasteboardTranslate) ? nil : queryText;
     self.actionType = actionType;
 
     MMLogInfo(@"show floating windowType: %ld, queryTextLength: %lu, autoQuery: %d, actionType: %@, atPoint: %@", windowType, (unsigned long)queryText.length, autoQuery, actionType, @(point));
@@ -917,6 +918,23 @@ static EZWindowManager *_instance;
     if (queryText.length > 0) {
         [self showFloatingWindowType:windowType queryText:queryText autoQuery:YES actionType:self.actionType];
     }
+}
+
+/// Translate plain text triggered by double Cmd+C in the mini floating window.
+- (void)doubleCopyTranslateText:(NSString *)text {
+    NSString *trimmedText = [[text ns_removeInvisibleChar] ns_trim];
+    if (trimmedText.length == 0) {
+        return;
+    }
+
+    MMLogInfo(@"Double Copy Translate, length: %lu", (unsigned long)trimmedText.length);
+
+    self.lastPoint = NSEvent.mouseLocation;
+    self.actionType = EZActionTypePasteboardTranslate;
+    [self showFloatingWindowType:EZWindowTypeMini
+                       queryText:trimmedText
+                       autoQuery:YES
+                      actionType:EZActionTypePasteboardTranslate];
 }
 
 /**

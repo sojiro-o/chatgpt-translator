@@ -17,6 +17,9 @@ extension NSPasteboard {
         set {
             clearContents()
             setString(newValue, forType: .string)
+            if self === NSPasteboard.general {
+                PasteboardSelfWriteTracker.shared.recordSelfWrite(changeCount: changeCount)
+            }
         }
     }
 
@@ -24,6 +27,9 @@ extension NSPasteboard {
     func setString(_ string: String) {
         clearContents()
         setString(string, forType: .string)
+        if self === NSPasteboard.general {
+            PasteboardSelfWriteTracker.shared.recordSelfWrite(changeCount: changeCount)
+        }
     }
 
     // MARK: - Get Image from Pasteboard

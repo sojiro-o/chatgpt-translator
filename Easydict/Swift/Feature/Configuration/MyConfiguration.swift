@@ -58,6 +58,8 @@ class MyConfiguration: NSObject {
     }
 
     @DefaultsWrapper(.autoShowQueryIcon) var autoSelectText: Bool
+    @DefaultsWrapper(.enableDoubleCopyTranslate) var enableDoubleCopyTranslate: Bool
+    @DefaultsWrapper(.doubleCopyTranslateInterval) var doubleCopyTranslateInterval: Int
     @DefaultsWrapper(.autoShowQueryIconExcludedLanguage) var autoShowQueryIconExcludedLanguage: Language
     @DefaultsWrapper(.autoShowQueryIconMinTextLength) var autoShowQueryIconMinTextLength: Int
     @DefaultsWrapper(.enableForceGetSelectedText) var enableForceGetSelectedText: Bool

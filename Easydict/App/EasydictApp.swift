@@ -139,6 +139,7 @@ struct EasydictApp: App {
     /// Persist queued writes synchronously; an asynchronous task may not run before exit.
     @MainActor
     private static func performTerminationTasks() {
+        DoubleCopyMonitor.shared.stop()
         GitHubCopilotModelStore.shared.stopAutomaticRefresh()
         VocabularyNotebookService.shared.flush()
     }

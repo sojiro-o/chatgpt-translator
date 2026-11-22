@@ -128,16 +128,21 @@ final class EventMonitor: NSObject {
 
     func addBothMonitor(_ isAutoSelectTextEnabled: Bool) {
         isAutoSelectTextMonitoringEnabled = isAutoSelectTextEnabled
-        let eventMask: NSEvent.EventTypeMask = [
-            .leftMouseDown,
-            .leftMouseUp,
-            .rightMouseDown,
-            .keyDown,
-            .keyUp,
-            .flagsChanged,
-            .leftMouseDragged,
-            .cursorUpdate,
-        ]
+        let eventMask: NSEvent.EventTypeMask = isAutoSelectTextEnabled
+            ? [
+                .leftMouseDown,
+                .leftMouseUp,
+                .rightMouseDown,
+                .keyDown,
+                .keyUp,
+                .flagsChanged,
+                .leftMouseDragged,
+                .cursorUpdate,
+            ]
+            : [
+                .leftMouseDown,
+                .rightMouseDown,
+            ]
 
         bothMonitorWithEvent(eventMask) { [weak self] event in
             self?.handleMonitorEvent(event)

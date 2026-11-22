@@ -1555,6 +1555,7 @@ static BOOL ez_frame_equal_with_tolerance(CGRect lhs, CGRect rhs, CGFloat tolera
     }
 
     EZQueryResult *result = service.result;
+    resultCell.associatedWindowType = self.windowType;
     resultCell.service = service;
     resultCell.result = result;
     [self setupResultCell:resultCell];

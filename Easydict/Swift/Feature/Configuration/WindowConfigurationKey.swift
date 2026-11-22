@@ -34,4 +34,8 @@ enum WindowConfigurationKey: Int {
         case .selectLanguageCellVisible: "SelectLanguageCellVisible"
         }
     }
+
+    static func defaultVisibility(for windowType: EZWindowType) -> Bool {
+        windowType != .mini
+    }
 }

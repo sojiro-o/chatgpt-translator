@@ -25794,6 +25794,91 @@
         }
       }
     },
+    "double_copy.permission.alert.later" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Later"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あとで"
+          }
+        }
+      }
+    },
+    "double_copy.permission.alert.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QuickTranslate uses Input Monitoring to detect pressing ⌘C twice. Keystrokes are never recorded or sent anywhere.\n\nPlease allow QuickTranslate in System Settings > Privacy & Security > Input Monitoring."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘C を2回押したことを検出するためにキー入力の監視を使います。入力内容を記録・送信することはありません。\n\nシステム設定の「プライバシーとセキュリティ」→「入力監視」で QuickTranslate を許可してください。"
+          }
+        }
+      }
+    },
+    "double_copy.permission.alert.open_settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open System Settings"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "システム設定を開く"
+          }
+        }
+      }
+    },
+    "double_copy.permission.alert.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Input Monitoring Permission Required"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "入力監視の権限が必要です"
+          }
+        }
+      }
+    },
+    "double_copy.text_too_long" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Text is too long to translate (over 10,000 characters)."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文字数が多すぎるため翻訳できません（10,000文字上限）。"
+          }
+        }
+      }
+    },
     "service.github_copilot.debug_log.show_in_finder" : {
       "comment" : "Button to reveal the debug log file in Finder",
       "extractionState" : "manual",
@@ -25838,6 +25923,142 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在 Finder 中顯示"
+          }
+        }
+      }
+    },
+    "setting.shortcut.double_copy.action.grant_permission" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grant Permission"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "権限を許可"
+          }
+        }
+      }
+    },
+    "setting.shortcut.double_copy.action.resume" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resume Monitoring"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "監視を再開"
+          }
+        }
+      }
+    },
+    "setting.shortcut.double_copy.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Press ⌘C twice quickly in another app to translate the copied text in a compact popup."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ほかのアプリで ⌘C を素早く2回押すと、コピーしたテキストを小さなポップアップで翻訳します。"
+          }
+        }
+      }
+    },
+    "setting.shortcut.double_copy.enable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Translate on double ⌘C"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘C の2回押しで翻訳する"
+          }
+        }
+      }
+    },
+    "setting.shortcut.double_copy.header" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double ⌘C Translate"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘C を2回押して翻訳"
+          }
+        }
+      }
+    },
+    "setting.shortcut.double_copy.interval" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detection interval"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "判定時間"
+          }
+        }
+      }
+    },
+    "setting.shortcut.double_copy.status.permission_required" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Input Monitoring permission is required to detect double ⌘C."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘C の2回押しを検出するには「入力監視」の権限が必要です。"
+          }
+        }
+      }
+    },
+    "setting.shortcut.double_copy.status.stopped" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double ⌘C monitoring is paused."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘C の2回押し監視が停止しています。"
           }
         }
       }
