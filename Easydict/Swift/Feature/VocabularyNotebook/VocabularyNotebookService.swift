@@ -30,58 +30,9 @@ final class VocabularyNotebookService: NSObject {
 
     static let shared = VocabularyNotebookService()
 
-    /// Appends one query record. No-op when the feature is disabled, the directory
-    /// is unset, the text is empty, or the query failed (`result.error != nil`).
+    /// No-op: vocabulary notebook persistence is disabled in QuickTranslate.
     func append(queryModel: QueryModel, result: QueryResult) {
-        guard Defaults[.enableVocabularyNotebook] else {
-            return
-        }
-
-        guard result.error == nil else {
-            return
-        }
-
-        // `result.queryText` is captured during query preprocessing. `queryModel` is
-        // shared with the UI and its text can change while this result is still
-        // completing, which would pair a newer input with the current result.
-        let text = result.queryText
-        guard !text.isEmpty else {
-            return
-        }
-
-        let directory = Defaults[.vocabularyNotebookDirectory]
-        guard !directory.isEmpty else {
-            return
-        }
-
-        // `result.from` / `result.to` are the resolved language pair set by
-        // `prehandleQueryTextOutcome` in both the UI and HTTP query paths. Prefer them
-        // over `queryModel.queryFromLanguage`, which the HTTP path does not populate.
-        let sourceLanguage = result.from == .auto ? queryModel.queryFromLanguage : result.from
-        let targetLanguage = result.to == .auto ? queryModel.queryTargetLanguage : result.to
-
-        let entry = VocabularyEntry(
-            text: text,
-            sourceLanguage: sourceLanguage.code,
-            targetLanguage: targetLanguage.code,
-            translatedText: result.translatedText,
-            timestamp: Date(),
-            dictionaryEntry: DictionaryEntry(wordResult: result.wordResult)
-        )
-
-        appendQueue.async { [weak self] in
-            guard let self else { return }
-            do {
-                try Self.append(entry, to: directory)
-            } catch {
-                logError("Failed to append vocabulary entry: \(error)")
-                NotificationCenter.default.post(
-                    name: .vocabularyNotebookWriteFailed,
-                    object: self,
-                    userInfo: [UserInfoKey.vocabularyNotebookDirectory: directory]
-                )
-            }
-        }
+        _ = (queryModel, result)
     }
 
     /// Blocks until all previously queued appends have been written to disk.
@@ -98,7 +49,7 @@ final class VocabularyNotebookService: NSObject {
     private static let fileName = "words.jsonl"
 
     /// Serializes appends so UI and HTTP writes never interleave in a single process.
-    private let appendQueue = DispatchQueue(label: "com.izual.Easydict.vocabulary-notebook")
+    private let appendQueue = DispatchQueue(label: "io.github.sojiro-o.QuickTranslate.vocabulary-notebook")
 
     private static func append(_ entry: VocabularyEntry, to directory: String) throws {
         let directoryURL = URL(fileURLWithPath: directory, isDirectory: true)

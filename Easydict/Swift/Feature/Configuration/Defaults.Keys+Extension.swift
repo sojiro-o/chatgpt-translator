@@ -19,9 +19,9 @@ extension Defaults.Keys {
 // Setting
 extension Defaults.Keys {
     // rename `from`
-    static let queryFromLanguage = Key<Language>("EZConfiguration_kFromKey", default: .auto)
+    static let queryFromLanguage = Key<Language>("EZConfiguration_kFromKey", default: .english)
     // rename `to`
-    static let queryToLanguage = Key<Language>("EZConfiguration_kToKey", default: .auto)
+    static let queryToLanguage = Key<Language>("EZConfiguration_kToKey", default: .japanese)
 
     static let firstLanguage = Key<Language>(
         "EZConfiguration_kFirstLanguageKey",
@@ -111,8 +111,8 @@ extension Defaults.Keys {
         "EZConfiguration_kPinWindowWhenDisplayed", default: false
     )
 
-    static let allowCrashLog = Key<Bool>("EZConfiguration_kAllowCrashLogKey", default: true)
-    static let allowAnalytics = Key<Bool>("EZConfiguration_kAllowAnalyticsKey", default: true)
+    static let allowCrashLog = Key<Bool>("EZConfiguration_kAllowCrashLogKey", default: false)
+    static let allowAnalytics = Key<Bool>("EZConfiguration_kAllowAnalyticsKey", default: false)
 
     static let clearQueryWhenInputTranslate = Key<Bool>(
         "EZConfiguration_kClearInputKey", default: false

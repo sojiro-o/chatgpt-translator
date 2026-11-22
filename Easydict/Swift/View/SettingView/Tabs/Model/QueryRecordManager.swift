@@ -81,7 +81,7 @@ class QueryRecordManager: NSObject {
         )
     }
 
-    /// Adds a query record with an optional translated result to the specified category.
+    /// No-op: favorites and query history persistence are disabled in QuickTranslate.
     @objc
     func addRecord(
         queryText: String,
@@ -90,61 +90,28 @@ class QueryRecordManager: NSObject {
         translatedResult: String?,
         to type: RecordType
     ) {
-        updateRecords(for: type) { records in
-            let record = makeRecord(
-                queryText: queryText,
-                fromLanguage: fromLanguage,
-                toLanguage: toLanguage,
-                translatedResult: translatedResult
-            )
-
-            switch type.deduplicationPolicy {
-            case .skipIfExists:
-                guard !records.contains(where: { $0.queryText == queryText }) else {
-                    return false
-                }
-            case .moveToFront:
-                records.removeAll { $0.queryText == queryText }
-            }
-
-            records.insert(record, at: 0)
-
-            if let maxCount = type.maxCount, records.count > maxCount {
-                records = Array(records.prefix(maxCount))
-            }
-
-            return true
-        }
+        _ = (queryText, fromLanguage, toLanguage, translatedResult, type)
     }
 
-    /// Updates the translated result of an existing record matched by query text.
+    /// No-op: favorites and query history persistence are disabled in QuickTranslate.
     @objc
     func updateTranslatedResult(
         _ translatedResult: String,
         forQueryText queryText: String,
         in type: RecordType
     ) {
-        updateRecords(for: type) { records in
-            guard let index = records.firstIndex(where: { $0.queryText == queryText }) else {
-                return false
-            }
-            records[index].translatedResult = translatedResult
-            return true
-        }
+        _ = (translatedResult, queryText, type)
     }
 
     /// Removes a record by ID from the specified category.
     func removeRecord(id: UUID, from type: RecordType) {
-        updateRecords(for: type) { records in
-            let originalCount = records.count
-            records.removeAll { $0.id == id }
-            return records.count != originalCount
-        }
+        _ = (id, type)
     }
 
-    /// Returns all records for the specified category.
+    /// Returns all records for the specified category (always empty in QuickTranslate).
     func getAllRecords(for type: RecordType) -> [QueryRecord] {
-        loadRecords(for: type)
+        _ = type
+        return []
     }
 
     /// Clears all records for the specified category.
@@ -152,10 +119,11 @@ class QueryRecordManager: NSObject {
         saveRecords([], for: type)
     }
 
-    /// Checks whether the given query text exists in the specified category.
+    /// Checks whether the given query text exists in the specified category (always false in QuickTranslate).
     @objc
     func containsRecord(queryText: String, in type: RecordType) -> Bool {
-        loadRecords(for: type).contains { $0.queryText == queryText }
+        _ = (queryText, type)
+        return false
     }
 
     // MARK: Private

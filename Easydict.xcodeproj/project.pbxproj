@@ -4265,11 +4265,10 @@
 			);
 			name = "Upload Debug Symbols to Sentry";
 			outputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/sentry-upload-debug-symbols.log",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# This script uploads debug symbols and source context to Sentry.\n\nLOG_FILE=\"${SCRIPT_OUTPUT_FILE_0:-$BUILT_PRODUCTS_DIR/sentry-upload-debug-symbols.log}\"\n: > \"$LOG_FILE\"\n\nlog_message() {\n    printf '%s\\n' \"$1\"\n    printf '%s\\n' \"$1\" >> \"$LOG_FILE\"\n}\n\nappend_log() {\n    printf '%s\\n' \"$1\" >> \"$LOG_FILE\"\n}\n\nif [ \"$(uname -m)\" = \"arm64\" ]; then\n    PATH=\"/opt/homebrew/bin:$PATH\"\n    export PATH\nfi\n\n# Only run this script in Release configuration.\nif [ \"$CONFIGURATION\" != \"Release\" ]; then\n    log_message \"Skipping Sentry debug symbol upload for $CONFIGURATION configuration.\"\n    exit 0\nfi\n\nif ! command -v sentry-cli >/dev/null 2>&1; then\n    log_message \"warning: sentry-cli not found. Skipping Sentry debug symbol upload.\"\n    exit 0\nfi\n\nexport SENTRY_ORG=izual\nexport SENTRY_PROJECT=easydict\n\nSENTRY_CONFIG_FILE=\"$PROJECT_DIR/.sentryclirc\"\nif [ -z \"$SENTRY_AUTH_TOKEN\" ] && [ ! -f \"$SENTRY_CONFIG_FILE\" ]; then\n    log_message \"warning: Release mode - SENTRY_AUTH_TOKEN is not set and $SENTRY_CONFIG_FILE was not found. Skipping Sentry debug symbol upload.\"\n    exit 0\nfi\n\nAPP_DSYM_PATH=\"$DWARF_DSYM_FOLDER_PATH/$DWARF_DSYM_FILE_NAME\"\nif [ ! -d \"$APP_DSYM_PATH\" ]; then\n    log_message \"warning: App dSYM not found at $APP_DSYM_PATH. Skipping Sentry debug symbol upload.\"\n    exit 0\nfi\n\nattempt=1\nmax_attempts=3\nUPLOAD_STATUS=1\nwhile [ $attempt -le $max_attempts ]; do\n    append_log \"sentry-cli upload attempt $attempt/$max_attempts for $APP_DSYM_PATH\"\n    UPLOAD_OUTPUT=$(sentry-cli debug-files upload --include-sources \"$APP_DSYM_PATH\" 2>&1)\n    UPLOAD_STATUS=$?\n    if [ -n \"$UPLOAD_OUTPUT\" ]; then\n        append_log \"$UPLOAD_OUTPUT\"\n    fi\n    if [ $UPLOAD_STATUS -eq 0 ]; then\n        break\n    fi\n    attempt=$((attempt + 1))\n    if [ $attempt -le $max_attempts ]; then\n        sleep 2\n    fi\ndone\n\nif [ $UPLOAD_STATUS -ne 0 ]; then\n    log_message \"warning: Sentry debug symbol upload failed after $max_attempts attempts. See $LOG_FILE for details.\"\n    exit 0\nfi\n\nlog_message \"Uploaded debug symbols to Sentry from $APP_DSYM_PATH.\"\n";
+			shellScript = "exit 0\n";
 		};
 		124D690EE7236D6430CF945E /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -4966,7 +4965,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.izual.EasydictSwiftTests;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.sojiro-o.QuickTranslateTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
@@ -4974,7 +4973,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Easydict/objc/ViewController/View/TextView/EZTextView.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Easydict-debug.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Easydict-debug";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/QuickTranslate-debug.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/QuickTranslate-debug";
 			};
 			name = Debug;
 		};
@@ -4985,8 +4984,8 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = $CODE_SIGN_IDENTITY;
+				CODE_SIGN_STYLE = $CODE_SIGN_STYLE;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM)";
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -4999,13 +4998,13 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.izual.EasydictSwiftTests;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.sojiro-o.QuickTranslateTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Easydict/objc/ViewController/View/TextView/EZTextView.h";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Easydict-debug.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Easydict-debug";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/QuickTranslate-debug.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/QuickTranslate-debug";
 			};
 			name = Release;
 		};
@@ -5116,7 +5115,6 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 45Z6V4YD5U;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -5173,9 +5171,9 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 2.26.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.izual.Easydict-debug";
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.sojiro-o.QuickTranslate-debug";
 				PRODUCT_MODULE_NAME = Easydict;
-				PRODUCT_NAME = "Easydict-debug";
+				PRODUCT_NAME = "QuickTranslate-debug";
 				RUNTIME_EXCEPTION_ALLOW_JIT = YES;
 				RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG AGENT_CLI_DEBUG $(inherited)";
@@ -5197,15 +5195,13 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Easydict/App/Easydict.entitlements;
 				CODE_SIGN_IDENTITY = $CODE_SIGN_IDENTITY;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = $CODE_SIGN_STYLE;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 69;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = 45Z6V4YD5U;
+				DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM)";
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_DEBUG_DYLIB = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -5222,9 +5218,9 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 2.26.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.izual.Easydict;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.sojiro-o.QuickTranslate";
 				PRODUCT_MODULE_NAME = Easydict;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = QuickTranslate;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				RUNTIME_EXCEPTION_ALLOW_JIT = YES;
 				RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = YES;

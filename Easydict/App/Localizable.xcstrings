@@ -5844,43 +5844,43 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "About Easydict"
+            "value" : "About QuickTranslate"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Acerca de Easydict"
+            "value" : "Acerca de QuickTranslate"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Easydict について"
+            "value" : "QuickTranslate について"
           }
         },
         "sk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O aplikácii Easydict"
+            "value" : "O aplikácii QuickTranslate"
           }
         },
         "ur" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Easydict کے بارے میں"
+            "value" : "QuickTranslate کے بارے میں"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "关于 Easydict"
+            "value" : "关于 QuickTranslate"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "關於 Easydict"
+            "value" : "關於 QuickTranslate"
           }
         }
       }
@@ -25791,6 +25791,114 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在 Finder 中顯示"
+          }
+        }
+      }
+    },
+    "menu.quit_quicktranslate" : {
+      "comment" : "Menu bar item to quit QuickTranslate",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit QuickTranslate"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QuickTranslate を終了"
+          }
+        }
+      }
+    },
+    "menu.sign_in_chatgpt" : {
+      "comment" : "Menu bar item to open ChatGPT sign-in settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in to ChatGPT..."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ChatGPT にログイン..."
+          }
+        }
+      }
+    },
+    "setting.about.derivative_notice" : {
+      "comment" : "Notice stating QuickTranslate is an unofficial GPL-3.0 derivative of Easydict",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QuickTranslate is an unofficial derivative of Easydict (https://github.com/tisfeng/Easydict, GPL-3.0) and is not affiliated with official Easydict."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QuickTranslate は Easydict（https://github.com/tisfeng/Easydict, GPL-3.0）の非公式派生版であり、Easydict 公式とは無関係です。"
+          }
+        }
+      }
+    },
+    "setting.about.license_notice" : {
+      "comment" : "License notice in About tab",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "License: GNU General Public License v3.0 (GPL-3.0)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ライセンス: GNU General Public License v3.0 (GPL-3.0)"
+          }
+        }
+      }
+    },
+    "setting.about.repository_link" : {
+      "comment" : "Button to open QuickTranslate GitHub repository",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QuickTranslate (GitHub)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QuickTranslate（GitHub）"
+          }
+        }
+      }
+    },
+    "setting.about.upstream_link" : {
+      "comment" : "Button to open upstream Easydict GitHub repository",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Original Easydict"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原プロジェクト (Easydict)"
           }
         }
       }

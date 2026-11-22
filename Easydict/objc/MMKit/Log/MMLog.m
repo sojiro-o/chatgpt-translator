@@ -16,7 +16,7 @@
 DDLogLevel MMDefaultLogLevel = DDLogLevelAll;
 BOOL MMDefaultLogAsyncEnabled = NO;
 #else
-DDLogLevel MMDefaultLogLevel = DDLogLevelInfo;
+DDLogLevel MMDefaultLogLevel = DDLogLevelWarning;
 BOOL MMDefaultLogAsyncEnabled = YES;
 #endif
 
@@ -38,19 +38,9 @@ BOOL MMDefaultLogAsyncEnabled = YES;
     // https://github.com/CocoaLumberjack/CocoaLumberjack/blob/master/Documentation/GettingStarted.md
     NSCAssert(name.length, @"MMLog: 日志 name 不能为空");
 
-    // terminal, use os_log
-    [ddlog addLogger:[DDOSLogger sharedInstance]];
-
-    // 文件输出
-    MMFileLogFormatter *fileFormatter = [MMFileLogFormatter new];
-    DDLogFileManagerDefault *fileManager = [[DDLogFileManagerDefault alloc] initWithLogsDirectory:[self logDirectoryWithName:name]];
-    fileManager.maximumNumberOfLogFiles = 100;
-    fileManager.logFilesDiskQuota = 20 * 1024 * 1024;
-    DDFileLogger *fileLogger = [[DDFileLogger alloc] initWithLogFileManager:fileManager];
-    
-    fileLogger.logFormatter = fileFormatter;
-    // file log
-    [ddlog addLogger:fileLogger withLevel:MMDefaultLogLevel];
+    // QuickTranslate: do not attach DDFileLogger (avoid persisting logs on disk)
+    // and restrict os_log to MMDefaultLogLevel (warning+ in Release).
+    [ddlog addLogger:[DDOSLogger sharedInstance] withLevel:MMDefaultLogLevel];
 }
 
 + (DDLog *)sharedDDLog {

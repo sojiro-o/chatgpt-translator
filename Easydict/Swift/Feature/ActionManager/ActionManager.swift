@@ -187,7 +187,7 @@ class ActionManager: NSObject {
                 reuslt += content
                 await systemUtility.insertText(content, using: textStrategy)
             }
-            logInfo("Final replacement result: \(reuslt.prettyJSONString)")
+            logInfo("Final replacement result length: \(reuslt.count)")
         } catch {
             logError("Streaming replacement failed: \(error)")
         }

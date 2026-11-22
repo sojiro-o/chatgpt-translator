@@ -52,7 +52,10 @@ class MyConfiguration: NSObject {
     @DefaultsWrapper(.secondLanguage) var secondLanguage: Language
     @DefaultsWrapper(.queryFromLanguage) var fromLanguage: Language
     @DefaultsWrapper(.queryToLanguage) var toLanguage: Language
-    @DefaultsWrapper(.languageDetectOptimize) var languageDetectOptimize: LanguageDetectOptimize
+    var languageDetectOptimize: LanguageDetectOptimize {
+        get { .none }
+        set { _ = newValue }
+    }
 
     @DefaultsWrapper(.autoShowQueryIcon) var autoSelectText: Bool
     @DefaultsWrapper(.autoShowQueryIconExcludedLanguage) var autoShowQueryIconExcludedLanguage: Language
@@ -119,8 +122,15 @@ class MyConfiguration: NSObject {
     // Max window height percentage, e.g., 80 means 80% of the screen height
     @DefaultsWrapper(.maxWindowHeightPercentage) var maxWindowHeightPercentage: Int
 
-    @DefaultsWrapper(.allowCrashLog) var allowCrashLog: Bool
-    @DefaultsWrapper(.allowAnalytics) var allowAnalytics: Bool
+    var allowCrashLog: Bool {
+        get { false }
+        set { _ = newValue }
+    }
+
+    var allowAnalytics: Bool {
+        get { false }
+        set { _ = newValue }
+    }
 
     @ShortcutWrapper(.pinShortcut) var pinShortcutString: String
     @ShortcutWrapper(.googleShortcut) var googleShortcutString: String
@@ -139,13 +149,8 @@ class MyConfiguration: NSObject {
     }
 
     var automaticallyChecksForUpdates: Bool {
-        get {
-            updater.automaticallyChecksForUpdates
-        }
-        set {
-            updater.automaticallyChecksForUpdates = newValue
-            logSettings(["automatically_checks_for_updates": newValue])
-        }
+        get { false }
+        set { _ = newValue }
     }
 
     var defaultTTSServiceType: ServiceType {
@@ -375,22 +380,6 @@ class MyConfiguration: NSObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.didSetShortcutSelectTranslateWindowType()
-            }
-            .store(in: &cancellables)
-
-        Defaults.publisher(.allowCrashLog, options: [.initial])
-            .removeDuplicates()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.didSetAllowCrashLog()
-            }
-            .store(in: &cancellables)
-
-        Defaults.publisher(.allowAnalytics, options: [])
-            .removeDuplicates()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.didSetAllowAnalytics()
             }
             .store(in: &cancellables)
 

@@ -21,13 +21,28 @@ enum SettingTab: Int {
     case about
 }
 
+// MARK: - SettingsNavigationState
+
+/// Shared navigation state for opening a specific settings tab or service from menu actions.
+final class SettingsNavigationState: ObservableObject {
+    static let shared = SettingsNavigationState()
+
+    @Published var selectedTab: SettingTab = .general
+    @Published var requestedServiceTypeID: String?
+
+    func openChatGPTService() {
+        selectedTab = .service
+        requestedServiceTypeID = ServiceType.codexCLI.rawValue
+    }
+}
+
 // MARK: - SettingView
 
 struct SettingView: View {
     // MARK: Internal
 
     var body: some View {
-        TabView(selection: $selection) {
+        TabView(selection: $navigationState.selectedTab) {
             GeneralTab()
                 .tabItem { Label("setting_general", systemImage: "gear") }
                 .tag(SettingTab.general)
@@ -36,25 +51,9 @@ struct SettingView: View {
                 .tabItem { Label("service", systemImage: "briefcase") }
                 .tag(SettingTab.service)
 
-            FavoritesTab()
-                .tabItem { Label("favorites.tab", systemImage: "star") }
-                .tag(SettingTab.favorites)
-
-            DisabledAppTab()
-                .tabItem { Label("disabled_app_list", systemImage: "nosign") }
-                .tag(SettingTab.disabled)
-
             ShortcutTab()
                 .tabItem { Label("shortcut", systemImage: "command.square") }
                 .tag(SettingTab.shortcut)
-
-            AdvancedTab()
-                .tabItem { Label("advanced", systemImage: "gearshape.2") }
-                .tag(SettingTab.advanced)
-
-            PrivacyTab()
-                .tabItem { Label("privacy", systemImage: "hand.raised.square") }
-                .tag(SettingTab.privacy)
 
             AboutTab()
                 .tabItem { Label("setting.about", systemImage: "info.bubble") }
@@ -66,7 +65,7 @@ struct SettingView: View {
                 resizeWindowFrame()
             }))
         )
-        .onChange(of: selection) { _ in
+        .onChange(of: navigationState.selectedTab) { _ in
             resizeWindowFrame()
         }
     }
@@ -78,15 +77,9 @@ struct SettingView: View {
         window.standardWindowButton(.zoomButton)?.isEnabled = false
 
         // Keep the settings page Windows all the same width to avoid strange animations.
-        let height: Double = switch selection {
-        case .disabled:
-            500
-        case .privacy:
-            340
+        let height: Double = switch navigationState.selectedTab {
         case .about:
-            300
-        case .favorites:
-            640
+            360
         default:
             defaultSettingsWindowHeight
         }
@@ -110,7 +103,7 @@ struct SettingView: View {
 
     // MARK: Private
 
-    @State private var selection = SettingTab.general
+    @ObservedObject private var navigationState = SettingsNavigationState.shared
     @State private var window: NSWindow?
 
     private let settingsWindowWidth: Double = 960

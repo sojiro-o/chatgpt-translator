@@ -9,9 +9,7 @@
 import Defaults
 import SettingsAccess
 import SFSafeSymbols
-import Sparkle
 import SwiftUI
-import ZipArchive
 
 // MARK: - MenuItemView
 
@@ -27,122 +25,63 @@ struct MenuItemView: View {
 
             Divider()
 
-            inputItem.keyboardShortcut(.inputTranslate)
-            selectWordItem.keyboardShortcut(.selectTranslate)
             pasteboardTranslateItem.keyboardShortcut(.pasteboardTranslate)
 
-            if mouseSelectTranslateWindowType != shortcutSelectTranslateWindowType {
-                miniWindowItem.keyboardShortcut(.showMiniWindow)
-            }
-
             Divider()
 
-            screenshotItem.keyboardShortcut(.snipTranslate)
-            silentScreenshotOCRItem.keyboardShortcut(.silentScreenshotOCR)
-
-            if showOCRMenuItems {
-                screenshotOCRItem
-                pasteboardOCRItem
-                showOCRWindowItem
-            }
-
-            Divider()
-
-            translateAndReplaceItem.keyboardShortcut(.translateAndReplace)
-            polishAndReplaceItem.keyboardShortcut(.polishAndReplace)
-
-            Divider()
-
+            signInChatGPTItem
             settingItem.keyboardShortcut(.init(","))
-            checkUpdateItem
-            helpItem
 
             Divider()
 
             quitItem.keyboardShortcut(.init("q"))
         }
-        .task(id: includeBetaUpdates) {
-            latestVersion = await GitHubReleaseFetcher.latestVersion(includePrerelease: includeBetaUpdates)
-        }
-    }
-
-    // MARK: - Menu Items
-
-    @ViewBuilder var inputItem: some View {
-        menuItem(for: .inputTranslate)
     }
 
     // MARK: Private
 
-    @ObservedObject private var store = MenuItemStore()
-
     @State private var currentVersion =
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
 
-    @State private var latestVersion: String?
-
-    @Environment(\.openURL) private var openURL
-
-    @Default(.showOCRMenuItems) private var showOCRMenuItems
-    @Default(.mouseSelectTranslateWindowType) private var mouseSelectTranslateWindowType
-    @Default(.shortcutSelectTranslateWindowType) private var shortcutSelectTranslateWindowType
-    @Default(.includeBetaUpdates) private var includeBetaUpdates
-
     private var versionString: String {
-        let defaultLabel = "Easydict  \(currentVersion)"
-        if let latestVersion, GitHubReleaseFetcher.isNewer(latestVersion, than: currentVersion) {
-            return defaultLabel + "  (✨\(latestVersion) )"
-        } else {
-            return defaultLabel
-        }
-    }
-
-    @ViewBuilder private var screenshotItem: some View {
-        menuItem(for: .snipTranslate)
-    }
-
-    @ViewBuilder private var selectWordItem: some View {
-        menuItem(for: .selectTranslate)
+        "QuickTranslate \(currentVersion)"
     }
 
     @ViewBuilder private var pasteboardTranslateItem: some View {
         menuItem(for: .pasteboardTranslate)
     }
 
-    @ViewBuilder private var polishAndReplaceItem: some View {
-        menuItem(for: .polishAndReplace)
-    }
-
-    @ViewBuilder private var translateAndReplaceItem: some View {
-        menuItem(for: .translateAndReplace)
-    }
-
-    @ViewBuilder private var miniWindowItem: some View {
-        menuItem(for: .showMiniWindow)
-    }
-
-    @ViewBuilder private var silentScreenshotOCRItem: some View {
-        menuItem(for: .silentScreenshotOCR)
-    }
-
-    @ViewBuilder private var screenshotOCRItem: some View {
-        menuItem(for: .screenshotOCR)
-    }
-
-    @ViewBuilder private var pasteboardOCRItem: some View {
-        menuItem(for: .pasteboardOCR)
-    }
-
-    @ViewBuilder private var showOCRWindowItem: some View {
-        menuItem(for: .showOCRWindow)
-    }
-
     // MARK: - Other Items
 
     /// Version item
     @ViewBuilder private var versionItem: some View {
-        Button(versionString) {
-            openURL(AppConstants.releasesURL)
+        Text(versionString)
+    }
+
+    /// Sign in to ChatGPT item (opens Service settings with ChatGPT/Codex selected)
+    @ViewBuilder private var signInChatGPTItem: some View {
+        let titleKey = LocalizedStringKey("menu.sign_in_chatgpt")
+        if #available(macOS 14.0, *) {
+            SettingsLink {
+                Text(titleKey)
+            } preAction: {
+                logInfo("Open ChatGPT Sign-In Settings")
+                SettingsNavigationState.shared.openChatGPTService()
+                NSApplication.shared.activateApp()
+            } postAction: {
+                // nothing to do
+            }
+        } else {
+            Button(titleKey) {
+                logInfo("Open ChatGPT Sign-In Settings")
+                SettingsNavigationState.shared.openChatGPTService()
+                NSApplication.shared.activateApp()
+
+                // Refer https://stackoverflow.com/a/77265223/8378840
+                NSApplication.shared.sendAction(
+                    Selector(("showSettingsWindow:")), to: nil, from: nil
+                )
+            }
         }
     }
 
@@ -171,66 +110,11 @@ struct MenuItemView: View {
         }
     }
 
-    /// Check Updates item
-    @ViewBuilder private var checkUpdateItem: some View {
-        Button("check_updates") {
-            logInfo("Check Updates")
-            NSApp.activateApp()
-            MyConfiguration.shared.updater.checkForUpdates()
-        }
-        .disabled(!store.canCheckForUpdates)
-    }
-
     /// Quit item
     @ViewBuilder private var quitItem: some View {
-        Button("quit") {
+        Button("menu.quit_quicktranslate") {
             logInfo("Quit Application")
             NSApplication.shared.terminate(nil)
-        }
-    }
-
-    /// Help item
-    @ViewBuilder private var helpItem: some View {
-        Menu("Help") {
-            Button("Feedback") {
-                logInfo("Open Feedback")
-                openURL(AppConstants.issuesURL)
-            }
-            Button("Export Log") {
-                exportLogAction()
-            }
-            Button("Log Directory") {
-                logInfo("Open Log Directory")
-                let pathManager = AppPathManager.current
-                let directoryURL = pathManager.appLogDirectory
-                try? pathManager.ensureDirectoryExists(at: directoryURL)
-                NSWorkspace.shared.open(directoryURL)
-            }
-        }
-    }
-
-    private func exportLogAction() {
-        logInfo("Export Log")
-        let pathManager = AppPathManager.current
-        let directoryURL = pathManager.logsDirectory
-        try? pathManager.ensureDirectoryExists(at: directoryURL)
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH-mm-ss-SSS"
-        let dataString = dateFormatter.string(from: Date())
-        let downloadDirectory = FileManager.default.urls(
-            for: .downloadsDirectory, in: .userDomainMask
-        )[0]
-        let zipPath = downloadDirectory.appendingPathComponent("Easydict log \(dataString).zip")
-            .path(percentEncoded: false)
-        let success = SSZipArchive.createZipFile(
-            atPath: zipPath,
-            withContentsOfDirectory: directoryURL.path(percentEncoded: false),
-            keepParentDirectory: false
-        )
-        if success {
-            NSWorkspace.shared.selectFile(zipPath, inFileViewerRootedAtPath: "")
-        } else {
-            logError("Export log failed")
         }
     }
 }
@@ -287,22 +171,6 @@ private struct MenuItemBuilder: View {
             }
         }
     }
-}
-
-// MARK: - MenuItemStore
-
-final class MenuItemStore: ObservableObject {
-    // MARK: Lifecycle
-
-    init() {
-        MyConfiguration.shared.updater
-            .publisher(for: \.canCheckForUpdates)
-            .assign(to: &$canCheckForUpdates)
-    }
-
-    // MARK: Internal
-
-    @Published var canCheckForUpdates = false
 }
 
 #Preview {

@@ -53,10 +53,10 @@
 
     // good / girl
     [routes addRoute:@"*" handler:^BOOL(NSDictionary *parameters) {
-        MMLogInfo(@"parameters: %@", parameters);
+        MMLogInfo(@"route wildcard parameter count: %lu", (unsigned long)parameters.count);
 
         NSURL *URL = parameters[JLRouteURLKey];
-        MMLogInfo(@"URL: %@", URL);
+        MMLogInfo(@"route wildcard URL scheme: %@", URL.scheme);
 
         NSString *queryText = [self extractQueryTextFromURL:URL];
         [self showFloatingWindowAndAutoQueryText:queryText];
@@ -108,7 +108,7 @@
 
     // easydict://query?text=good, easydict://query?text=你好
     if ([URL.scheme containsString:EZAppScheme]) {
-        MMLogInfo(@"handle URL: %@", URL);
+        MMLogInfo(@"handle URL scheme: %@", URL.scheme);
     }
 
     [JLRoutes routeURL:URL];

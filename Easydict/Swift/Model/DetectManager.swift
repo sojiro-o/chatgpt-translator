@@ -102,52 +102,13 @@ public final class DetectManager: NSObject {
                 return
             }
 
-            var preferredLanguages = EZLanguageManager.shared().preferredLanguages
-
-            // Add English and Chinese to the preferred language list.
-            // System detect for English and Chinese is relatively accurate,
-            // so we don't need to use Google or Baidu to detect again.
-            preferredLanguages.append(contentsOf: [
-                .english,
-                .simplifiedChinese,
-                .traditionalChinese,
-            ])
-
-            let isPreferredLanguage = preferredLanguages.contains(appleDetectedLanguage)
-
-            let languageDetectOptimize = MyConfiguration.shared.languageDetectOptimize
-
-            // If the detected language is preferred or optimization is disabled, use Apple's result.
-            if isPreferredLanguage || languageDetectOptimize == .none {
-                handleDetectedLanguage(
-                    appleDetectedLanguage,
-                    queryText: queryText,
-                    error: error,
-                    completion: completion
-                )
-                return
-            }
-
-            // Otherwise, use configured optimization service (Baidu or Google).
-            if languageDetectOptimize == .baidu {
-                baiduDetect(
-                    queryText: queryText,
-                    fallbackLanguage: appleDetectedLanguage,
-                    fallbackError: error,
-                    completion: completion
-                )
-                return
-            }
-
-            if languageDetectOptimize == .google {
-                googleDetect(
-                    queryText: queryText,
-                    fallbackLanguage: appleDetectedLanguage,
-                    fallbackError: error,
-                    completion: completion
-                )
-                return
-            }
+            // QuickTranslate always uses local Apple language detection without external APIs.
+            handleDetectedLanguage(
+                appleDetectedLanguage,
+                queryText: queryText,
+                error: error,
+                completion: completion
+            )
         }
     }
 

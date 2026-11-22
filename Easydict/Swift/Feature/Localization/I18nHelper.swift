@@ -31,15 +31,11 @@ class I18nHelper: NSObject {
             return code
         }
 
-        if let localLanguageType = Locale.current.languageType {
-            return localLanguageType.rawValue
-        }
-
-        return LanguageState.LanguageType.english.rawValue
+        return LanguageState.LanguageType.japanese.rawValue
     }
 
     var languageType: LanguageState.LanguageType {
-        LanguageState.LanguageType(rawValue: localizeCode) ?? .english
+        LanguageState.LanguageType(rawValue: localizeCode) ?? .japanese
     }
 
     var isSimplifiedChineseLocalize: Bool {

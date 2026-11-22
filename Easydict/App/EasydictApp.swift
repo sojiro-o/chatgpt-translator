@@ -20,11 +20,6 @@ enum EasydictCmpatibilityEntry {
         AppPathMigration.prepareForLaunch()
         parseArmguments()
 
-        // Capturing crash logs must be placed first.
-        MMCrash.registerHandler()
-        AnalyticsService.setupCrashService()
-        AnalyticsService.logAppInfo()
-
         // Workaround for macOS 26 Tahoe WindowServer high GPU load: NSWindow subclasses
         // that directly override `_cornerMask` defeat AppKit's mask cache and force the
         // compositor to re-render every frame. Must run before any window is created.
@@ -35,17 +30,13 @@ enum EasydictCmpatibilityEntry {
 
         // Workaround for macOS 26 Tahoe: AppKit's AutoFill heuristics launch
         // a per-app "AutoFill" helper process (SafariPlatformSupport.Helper)
-        // on text input. Easydict needs no system AutoFill suggestions, so
+        // on text input. QuickTranslate needs no system AutoFill suggestions, so
         // disable the heuristics to keep that helper from spawning.
         if #available(macOS 26, *) {
             UserDefaults.standard.register(
                 defaults: ["NSAutoFillHeuristicsEnabled": false]
             )
         }
-
-        // Move the one-time Vision OCR network compilation off the first user query.
-        // See `AppleOCREngine+WarmUp.swift` for why a cold cache costs 60–120 seconds.
-        AppleOCREngine.warmUpVisionOCRIfNeeded()
 
         // app launch
         EasydictApp.main()
@@ -70,7 +61,7 @@ struct EasydictApp: App {
                 .environment(\.locale, .init(identifier: I18nHelper.shared.localizeCode))
         } label: {
             Label {
-                Text("Easydict")
+                Text("QuickTranslate")
                     .openSettingsAccess() // trick way for open setting
                     .onReceive(
                         NotificationCenter.default.publisher(
@@ -93,7 +84,7 @@ struct EasydictApp: App {
                     #endif
                     .scaledToFit()
             }
-            .help("Easydict 🍃")
+            .help("QuickTranslate")
         }
         .menuBarExtraStyle(.menu)
         .commands {
@@ -143,9 +134,7 @@ struct EasydictApp: App {
     @Default(.selectedMenuBarIcon) private var menuBarIcon
 
     @MainActor
-    private static func performPostLaunchTasks() {
-        GitHubCopilotModelStore.shared.startAutomaticRefresh()
-    }
+    private static func performPostLaunchTasks() {}
 
     /// Persist queued writes synchronously; an asynchronous task may not run before exit.
     @MainActor
