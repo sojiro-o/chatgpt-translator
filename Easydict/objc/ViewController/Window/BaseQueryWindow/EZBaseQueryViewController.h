@@ -45,6 +45,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)clearInput;
 - (void)clearAll;
 
+/// Stops running queries and drops the source text and results (QuickTranslate keeps no translation content after the popup closes).
+- (void)discardQueryContent;
+
 - (void)copyQueryText;
 
 - (void)copyFirstTranslatedText;

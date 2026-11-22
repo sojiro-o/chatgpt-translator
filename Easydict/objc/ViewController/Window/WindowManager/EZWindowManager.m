@@ -1088,6 +1088,12 @@ static EZWindowManager *_instance;
 
     [self updateFloatingWindowType:windowType isShowing:NO];
     [self scheduleDictionaryWebViewDiscardForWindow:floatingWindow];
+
+    // QuickTranslate: do not keep the source text or translation after the popup closes.
+    if (windowType != EZWindowTypeMain) {
+        [floatingWindow.queryViewController discardQueryContent];
+        self.selectedText = nil;
+    }
 }
 
 - (void)scheduleDictionaryWebViewDiscardForWindow:(EZBaseQueryWindow *)window {

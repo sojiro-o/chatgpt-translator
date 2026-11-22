@@ -671,6 +671,12 @@ static BOOL ez_frame_equal_with_tolerance(CGRect lhs, CGRect rhs, CGFloat tolera
     self.queryView.clearButtonHidden = YES;
 }
 
+- (void)discardQueryContent {
+    [self.queryModel stopAllService];
+    [self clearInput];
+    [self resetQueryAndResults];
+}
+
 - (void)copyQueryText {
     [self.inputText ns_copyAndShowToast:YES];
 }
