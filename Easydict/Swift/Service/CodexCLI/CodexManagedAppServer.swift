@@ -26,7 +26,7 @@ actor CodexManagedAppServer {
     }
 
     static let shared = CodexManagedAppServer()
-    static let providerID = "easydict"
+    static let providerID = "quicktranslate"
 
     func runtime() async throws -> CodexManagedRuntime {
         if let session { return session.runtime }
@@ -77,6 +77,24 @@ actor CodexManagedAppServer {
         }
 
         do {
+            // A reused connection can outlive configuration edits. Recheck the
+            // effective MCP table before creating a thread without interrupting
+            // translations already running on the connection.
+            let configuration = try await request(
+                session: session,
+                method: "config/read",
+                params: ["cwd": translation.runtime.workingDirectory.path],
+                translationIdentifier: translation.identifier
+            )
+            if let failure = state.failure { throw failure }
+            guard let enabledServers = CodexMCPIsolation().enabledServers(in: configuration.object),
+                  enabledServers.isEmpty
+            else { throw CodexManagedError.isolationFailed }
+            try Task.checkCancellation()
+            guard translations[translation.identifier] === state, !translation.isCancelled() else {
+                throw CancellationError()
+            }
+
             let response = try await request(
                 session: session,
                 method: "thread/start",
@@ -85,13 +103,19 @@ actor CodexManagedAppServer {
             )
             guard translations[translation.identifier] === state,
                   let thread = response.object["thread"] as? [String: Any],
-                  let threadID = thread["id"] as? String,
-                  thread["ephemeral"] as? Bool == true
+                  let threadID = thread["id"] as? String, !threadID.isEmpty
             else { throw state.failure ?? CodexManagedError.invalidResponse }
             state.threadID = threadID
             requestByThread[threadID] = translation.identifier
             if let failure = state.failure { throw failure }
+            guard CodexMCPIsolation().acceptsThread(response.object) else {
+                throw CodexManagedError.isolationFailed
+            }
 
+            try Task.checkCancellation()
+            guard translations[translation.identifier] === state, !translation.isCancelled() else {
+                throw CancellationError()
+            }
             var turnParameters: [String: Any] = [
                 "threadId": threadID,
                 "input": [["type": "text", "text": translation.prompt]],
@@ -143,10 +167,14 @@ actor CodexManagedAppServer {
 
     /// Stops the shared process before credentials or managed component identity changes.
     func invalidate() {
+        let cachedEphemeral = cachedRuntime?.ephemeralDirectory
         runtimeLoad?.task.cancel()
         runtimeLoad = nil
         cachedRuntime = nil
         stopSession(error: CancellationError())
+        if let cachedEphemeral {
+            CodexManagedRuntime.removeEphemeralDirectory(at: cachedEphemeral)
+        }
     }
 
     // MARK: Private
@@ -305,7 +333,11 @@ extension CodexManagedAppServer {
                     session.messages.continuation.finish()
                     Task {
                         await session.messageTask?.value
-                        await self?.processTerminated(session.process.identifier, stderr: stderr)
+                        await self?.processTerminated(
+                            session.process.identifier,
+                            ephemeralDirectory: session.runtime.ephemeralDirectory,
+                            stderr: stderr
+                        )
                     }
                 }
             )
@@ -314,14 +346,24 @@ extension CodexManagedAppServer {
                 method: "initialize",
                 params: [
                     "clientInfo": [
-                        "name": "easydict",
-                        "title": "Easydict",
+                        "name": "quicktranslate",
+                        "title": "QuickTranslate",
                         "version": Bundle.main
                             .object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown",
                     ],
                 ]
             )
             try process.send(["method": "initialized"])
+            let configuration = try await request(
+                session: session,
+                method: "config/read",
+                params: ["cwd": runtime.workingDirectory.path]
+            )
+            guard let enabledServers = CodexMCPIsolation().enabledServers(in: configuration.object),
+                  enabledServers.isEmpty
+            else {
+                throw CodexManagedError.isolationFailed
+            }
             guard self.session === session else { throw CancellationError() }
             session.initialized = true
             let readiness = session.readiness
@@ -654,11 +696,19 @@ extension CodexManagedAppServer {
             finish(state, result: .failure(error), releaseThread: false)
         }
         if terminate { failedSession.process.terminate() }
+        CodexManagedRuntime.removeEphemeralDirectory(at: failedSession.runtime.ephemeralDirectory)
     }
 
-    private func processTerminated(_ identifier: UUID, stderr _: Data) {
-        guard let session, session.process.identifier == identifier else { return }
-        failSession(session, error: CodexManagedError.invalidResponse, terminate: false)
+    private func processTerminated(
+        _ identifier: UUID,
+        ephemeralDirectory: URL,
+        stderr _: Data
+    ) {
+        if let session, session.process.identifier == identifier {
+            failSession(session, error: CodexManagedError.invalidResponse, terminate: false)
+        } else if session == nil {
+            CodexManagedRuntime.removeEphemeralDirectory(at: ephemeralDirectory)
+        }
     }
 
     private func scheduleIdleShutdown() {
@@ -673,8 +723,12 @@ extension CodexManagedAppServer {
 
     private func stopIfIdle() {
         guard translations.isEmpty else { return }
+        let cachedEphemeral = cachedRuntime?.ephemeralDirectory
         cachedRuntime = nil
         stopSession(error: CancellationError())
+        if let cachedEphemeral {
+            CodexManagedRuntime.removeEphemeralDirectory(at: cachedEphemeral)
+        }
     }
 
     private func threadParameters(model: String, runtime: CodexManagedRuntime) -> [String: Any] {
@@ -686,7 +740,7 @@ extension CodexManagedAppServer {
             "sandbox": "read-only",
             "developerInstructions": CodexManagedRuntime.translationInstructions,
             "ephemeral": true,
-            "serviceName": "easydict",
+            "serviceName": "quicktranslate",
         ]
     }
 
@@ -717,6 +771,7 @@ extension CodexManagedAppServer {
             && lhs.executable == rhs.executable
             && lhs.codexHome == rhs.codexHome
             && lhs.workingDirectory == rhs.workingDirectory
+            && lhs.ephemeralDirectory == rhs.ephemeralDirectory
             && lhs.catalogURL == rhs.catalogURL
     }
 }

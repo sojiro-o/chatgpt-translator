@@ -18,7 +18,7 @@ struct CodexServiceConfiguration: Equatable {
 
     init(uuid: String) {
         self.uuid = uuid
-        self.mode = Defaults[CodexAccessMode.key(uuid: uuid)]
+        self.mode = CodexAccessMode.resolved(uuid: uuid)
         self.model = Defaults[Self.modelKey(uuid: uuid, mode: mode)]
         self.effort = Defaults[Self.effortKey(uuid: uuid, mode: mode)]
     }
@@ -53,7 +53,7 @@ struct CodexServiceConfiguration: Equatable {
             mode == .managed ? .codexManagedReasoningEffort : .reasoningEffort,
             serviceType: .codexCLI,
             id: uuid,
-            defaultValue: .default
+            defaultValue: mode == .managed ? .low : .default
         )
     }
 }
@@ -86,9 +86,6 @@ final class CodexRequestCoordinator: @unchecked Sendable {
                 Task { @MainActor in
                     CodexManagedAccount.shared.configurationChanged(origin: uuid)
                     CodexManagedAccount.shared.cancelLogin(origin: uuid)
-                    if Defaults[CodexAccessMode.key(uuid: uuid)] == .localCLI {
-                        CodexComponentManager.shared.modeChanged(origin: uuid)
-                    }
                 }
             }.store(in: &subscriptions)
         for mode in CodexAccessMode.allCases {

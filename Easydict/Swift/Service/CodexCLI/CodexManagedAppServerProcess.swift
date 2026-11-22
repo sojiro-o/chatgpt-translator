@@ -29,6 +29,7 @@ final class CodexManagedAppServerProcess: @unchecked Sendable {
         messageReceived: @escaping @Sendable (Data) -> (),
         terminated: @escaping @Sendable (Data) -> ()
     ) throws {
+        try runtime.prepareEphemeralDirectories(verifyAncestors: false)
         let context = Context()
         let process = Process()
         process.executableURL = runtime.executable
@@ -66,6 +67,7 @@ final class CodexManagedAppServerProcess: @unchecked Sendable {
         }
         do {
             try process.run()
+            CodexManagedRuntime.registerActiveAppServerProcess(self)
         } catch {
             stateLock.withLock { self.process = nil }
             context.stdoutPipe.fileHandleForReading.readabilityHandler = nil
@@ -89,6 +91,7 @@ final class CodexManagedAppServerProcess: @unchecked Sendable {
     }
 
     func terminate() {
+        CodexManagedRuntime.unregisterActiveAppServerProcess(self)
         let current = stateLock.withLock { () -> Process? in
             let current = process
             process = nil
@@ -115,7 +118,7 @@ final class CodexManagedAppServerProcess: @unchecked Sendable {
     private let stateLock = NSLock()
     private let writeLock = NSLock()
     private let ioQueue = DispatchQueue(
-        label: "com.easydict.codex-managed-app-server-io",
+        label: "com.quicktranslate.codex-managed-app-server-io",
         qos: .userInitiated
     )
     private var process: Process?
@@ -172,6 +175,7 @@ final class CodexManagedAppServerProcess: @unchecked Sendable {
             stateLock.withLock {
                 if self.process === terminatedProcess { self.process = nil }
             }
+            CodexManagedRuntime.unregisterActiveAppServerProcess(self)
             terminationReceived?(context.stderrBuffer)
         }
     }

@@ -18,12 +18,6 @@ final class LocalStorage: NSObject {
 
     private override init() {
         super.init()
-        if let domain = Bundle.main.bundleIdentifier {
-            let snapshot = userDefaults.persistentDomain(forName: domain) ?? [:]
-            for uuid in CodexConfigurationMigration.legacyUUIDs(in: snapshot) {
-                Defaults[CodexAccessMode.key(uuid: uuid)] = .localCLI
-            }
-        }
         setup()
     }
 
@@ -150,10 +144,8 @@ final class LocalStorage: NSObject {
         }
 
         if metadata.serviceType == .codexCLI {
-            // Persist the mode before membership: an interrupted addition must not
-            // look like a legacy installation on the next launch.
             let modeKey = CodexAccessMode.key(uuid: metadata.uuid)
-            Defaults[modeKey] = Defaults[modeKey]
+            Defaults[modeKey] = .managed
         }
         serviceTypeIds.append(serviceTypeId)
         setAllServiceTypes(serviceTypeIds, windowType: windowType)

@@ -19,11 +19,13 @@ enum CodexAccessMode: String, CaseIterable, Defaults.Serializable {
 
     // MARK: Internal
 
+    /// QuickTranslate always uses the built-in ChatGPT sign-in mode.
+    static func resolved(uuid _: String) -> Self {
+        .managed
+    }
+
     var enableMessage: LocalizedStringKey {
-        switch self {
-        case .managed: "service.codex_cli.managed.enable_message"
-        case .localCLI: "service.codex_cli.enable_risk_alert.message"
-        }
+        "service.codex_cli.managed.enable_message"
     }
 
     static func key(uuid: String) -> Defaults.Key<Self> {

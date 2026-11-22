@@ -24,7 +24,7 @@ extension AppPathManager {
     }
 
     /// Older roots checked by `CodexDirectoryMigration`, disabled in QuickTranslate
-    /// to avoid migrating files from an installed copy of Easydict.
+    /// so upstream Easydict's managed directory is never moved.
     var legacyCodexDirectories: [URL] {
         []
     }

@@ -382,19 +382,34 @@ final class CodexManagedAccount: ObservableObject {
             else { throw CancellationError() }
         }
         let result = try await request.run(
-            prompt: "Translate the English greeting Hello into Simplified Chinese. Return only the translation.",
+            prompt: "Translate the English greeting Hello into Japanese. Return only the translation.",
             model: configuration?.model ?? runtime.release.defaultModel,
-            effort: configuration?.effort.cliValue, runtime: runtime
+            effort: (configuration?.effort ?? .low).cliValue, runtime: runtime
         )
         try check(generation)
         if let configuration,
            configuration != CodexServiceConfiguration(uuid: configuration.uuid) {
             throw CancellationError()
         }
-        let greeting = result.text.trimmingCharacters(in: .whitespacesAndNewlines.union(.punctuationCharacters))
-        guard ["你好", "您好"].contains(greeting) else { throw CodexManagedError.invalidResponse }
+        let greeting = result.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !greeting.isEmpty, Self.containsJapaneseCharacter(greeting) else {
+            throw CodexManagedError.invalidResponse
+        }
         authenticationState = true
         state = .ready
+    }
+
+    private static func containsJapaneseCharacter(_ text: String) -> Bool {
+        text.unicodeScalars.contains { scalar in
+            switch scalar.value {
+            case 0x3040 ... 0x309F, // Hiragana
+                 0x30A0 ... 0x30FF, // Katakana
+                 0xFF66 ... 0xFF9D: // Halfwidth Katakana
+                return true
+            default:
+                return false
+            }
+        }
     }
 }
 
