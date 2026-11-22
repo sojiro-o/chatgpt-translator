@@ -110,12 +110,13 @@ jobs:
             $COMMON_SETTINGS \
             > "$LOG_DIR/test.log" 2>&1 || {
               echo "::group::Errors and failures"
-              grep -E '(error|fatal error):|failed|Failing tests' "$LOG_DIR/test.log" | sort -u | head -200
+              grep -a -E '(error|fatal error):|✘|failed|Failing tests' "$LOG_DIR/test.log" | sort -u | head -200
               echo "::endgroup::"
               tail -80 "$LOG_DIR/test.log"
               exit 1
             }
-          grep -E "Test (Case|Suite).*(passed|failed)|Executed" "$LOG_DIR/test.log" | tail -40
+          # Swift Testing prints ✔/✘ lines; XCTest prints "Executed N tests".
+          grep -a -E 'Test run with|✔|✘|Executed' "$LOG_DIR/test.log" | tail -40
 
       - name: Upload logs
         if: always()

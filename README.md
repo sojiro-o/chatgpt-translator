@@ -156,7 +156,7 @@ API キーは不要で、入力欄もありません。API 従量課金に切り
 
 ### 検証済み
 
-- CI の結果: （ここに記入）
+- CI の結果: 2026-11-22 の [GitHub Actions の実行](https://github.com/sojiro-o/chatgpt-translator/actions/runs/45039388856)で、すべて成功（Release ビルドは x86_64 + arm64 のユニバーサル、識別子と更新フィード未設定の確認、⌘C 2回判定の単体テスト 9 件）
 - 対象:
   - GitHub Actions（Xcode 27, macOS）での Release ビルド
   - Bundle ID・アプリ名・URL スキーム・更新フィード未設定の自動確認
