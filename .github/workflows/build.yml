@@ -1,0 +1,126 @@
+name: Build QuickTranslate
+
+on:
+  push:
+    branches: [quicktranslate]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and test (unsigned)
+    runs-on: xcode-27
+    timeout-minutes: 120
+    env:
+      DERIVED: ${{ github.workspace }}/build/DerivedData
+      SPM_DIR: ${{ github.workspace }}/build/SourcePackages
+      LOG_DIR: ${{ github.workspace }}/build/logs
+      # Skip SwiftFormat/SwiftLint run-script phases and sign ad hoc (no Apple Developer account needed).
+      COMMON_SETTINGS: >-
+        EASYDICT_RELEASE_PACKAGING=YES
+        CODE_SIGN_IDENTITY=-
+        CODE_SIGN_STYLE=Manual
+        DEVELOPMENT_TEAM=
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          sw_vers
+          mkdir -p "$LOG_DIR"
+
+      - name: Cache Swift packages
+        uses: actions/cache@v6
+        with:
+          path: build/SourcePackages
+          key: spm-${{ runner.os }}-${{ hashFiles('Easydict.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+
+      - name: Build Release app
+        run: |
+          # shellcheck disable=SC2086
+          xcodebuild build \
+            -workspace Easydict.xcworkspace \
+            -scheme Easydict \
+            -configuration Release \
+            -destination 'generic/platform=macOS' \
+            -derivedDataPath "$DERIVED" \
+            -clonedSourcePackagesDirPath "$SPM_DIR" \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            $COMMON_SETTINGS \
+            > "$LOG_DIR/build.log" 2>&1 || {
+              echo "::group::Compiler errors"
+              grep -E '(error|fatal error):' "$LOG_DIR/build.log" | sort -u | head -200
+              echo "::endgroup::"
+              tail -80 "$LOG_DIR/build.log"
+              exit 1
+            }
+          grep -E 'warning:.*(DoubleCopy|QuickTranslate)' "$LOG_DIR/build.log" | sort -u | head -50 || true
+          tail -5 "$LOG_DIR/build.log"
+
+      - name: Check app identity and privacy settings
+        run: |
+          APP="$DERIVED/Build/Products/Release/QuickTranslate.app"
+          PLIST="$APP/Contents/Info.plist"
+          test -d "$APP"
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$PLIST"
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleName' "$PLIST"
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleURLTypes' "$PLIST"
+          if /usr/libexec/PlistBuddy -c 'Print :SUFeedURL' "$PLIST" 2>/dev/null; then
+            echo "::error::SUFeedURL must not be set (update checks are disabled)"; exit 1
+          fi
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$PLIST")" != "com.izual.Easydict"
+          codesign -dv "$APP" 2>&1 | head -5
+          lipo -info "$APP/Contents/MacOS/QuickTranslate"
+
+      - name: Unit tests (double ⌘C detector)
+        run: |
+          # shellcheck disable=SC2086
+          xcodebuild test \
+            -workspace Easydict.xcworkspace \
+            -scheme Easydict \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            -derivedDataPath "$DERIVED" \
+            -clonedSourcePackagesDirPath "$SPM_DIR" \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            -only-testing:EasydictTests/DoubleCopyDetectorTests \
+            $COMMON_SETTINGS \
+            > "$LOG_DIR/test.log" 2>&1 || {
+              echo "::group::Errors and failures"
+              grep -E '(error|fatal error):|failed|Failing tests' "$LOG_DIR/test.log" | sort -u | head -200
+              echo "::endgroup::"
+              tail -80 "$LOG_DIR/test.log"
+              exit 1
+            }
+          grep -E "Test (Case|Suite).*(passed|failed)|Executed" "$LOG_DIR/test.log" | tail -40
+
+      - name: Package app
+        run: |
+          cd "$DERIVED/Build/Products/Release"
+          ditto -c -k --sequesterRsrc --keepParent QuickTranslate.app "$GITHUB_WORKSPACE/QuickTranslate.zip"
+          shasum -a 256 "$GITHUB_WORKSPACE/QuickTranslate.zip"
+
+      - name: Upload app
+        uses: actions/upload-artifact@v7
+        with:
+          name: QuickTranslate-${{ github.sha }}
+          path: QuickTranslate.zip
+          retention-days: 14
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-logs-${{ github.sha }}
+          path: build/logs
+          retention-days: 7

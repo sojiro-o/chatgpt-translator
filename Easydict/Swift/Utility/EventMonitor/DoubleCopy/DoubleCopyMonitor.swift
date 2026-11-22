@@ -565,7 +565,10 @@ final class DoubleCopyMonitor: NSObject {
             return
         }
 
-        if frontmostApp.processIdentifier == currentPID {
+        // Our popup is a non-activating panel, so the source app can stay frontmost
+        // while the popup has keyboard focus. Ignore copies made inside our own windows
+        // to avoid re-translating the translation.
+        if frontmostApp.processIdentifier == currentPID || NSApp.isActive || NSApp.keyWindow != nil {
             detector.reset()
             return
         }
