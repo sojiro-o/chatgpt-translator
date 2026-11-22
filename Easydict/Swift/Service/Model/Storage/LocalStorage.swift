@@ -352,43 +352,16 @@ final class LocalStorage: NSObject {
         setServiceInfo(info, windowType: windowType)
     }
 
-    /// Increases total query counts using the provided query text length.
-    /// - Parameter queryText: Text used for the query.
+    /// No-op: query statistics are disabled in QuickTranslate.
     @objc(increaseQueryCount:)
     func increaseQueryCount(_ queryText: String) {
-        let currentCount = queryCount
-        let currentLevel = queryLevel(for: currentCount)
-        let newCount = currentCount + 1
-        let newLevel = queryLevel(for: newCount)
-
-        if currentCount == 0 || newLevel != currentLevel {
-            let levelTitle = queryLevelTitle(newLevel, chineseFlag: true)
-            logInfo("new level: \(levelTitle)")
-
-            let dict: [String: String] = [
-                "count": "\(newCount)",
-                "level": "\(newLevel)",
-                "title": levelTitle,
-            ]
-            AnalyticsService.logEvent(withName: "query_count", parameters: dict)
-        }
-
-        queryCount = newCount
-        queryCharacterCount += queryText.count
+        _ = queryText
     }
 
-    /// Updates per-service query statistics.
-    /// - Parameter service: Service being queried.
+    /// No-op: per-service query statistics are disabled in QuickTranslate.
     @objc(increaseQueryService:)
     func increaseQueryService(_ service: QueryService) {
-        let serviceType = service.serviceType()
-        let record = record(with: serviceType)
-        let queryLength = service.queryModel.queryText.count
-        record.queryCount += 1
-        record.queryCharacterCount += queryLength
-        setQueryServiceRecord(record, serviceType: serviceType)
-
-        AnalyticsService.logQueryService(service)
+        _ = service
     }
 
     /// Checks whether a service has free quota left for the current user.
@@ -417,9 +390,7 @@ final class LocalStorage: NSObject {
     private let decoder = JSONDecoder()
 
     private let defaultServiceTypeIDs: [String] = [
-        ServiceType.youdao.rawValue,
-        ServiceType.deepL.rawValue,
-        ServiceType.builtInAI.rawValue,
+        ServiceType.codexCLI.rawValue,
     ]
 
     /// Raw dictionary backing service query statistics.
@@ -434,6 +405,14 @@ final class LocalStorage: NSObject {
 
     /// Ensures all known services have stored defaults for each window type.
     private func setup() {
+        // Persist `.managed` explicitly on first setup so `CodexConfigurationMigration`
+        // does not misclassify the default Codex service as a legacy `.localCLI` install
+        // on the next launch.
+        let defaultCodexModeKey = CodexAccessMode.key(uuid: "")
+        if userDefaults.object(forKey: defaultCodexModeKey.name) == nil {
+            Defaults[defaultCodexModeKey] = .managed
+        }
+
         let allWindowTypes: [EZWindowType] = [.mini, .fixed, .main]
 
         for windowType in allWindowTypes {

@@ -551,7 +551,7 @@ static BOOL ez_frame_equal_with_tolerance(CGRect lhs, CGRect rhs, CGFloat tolera
         mm_strongify(self);
         // !!!: inputText should be used here, not queryText, queryText may be modified, such as easydict://query?text=xxx
         NSString *inputText = queryModel.inputText;
-        MMLogInfo(@"ocr result: %@", inputText);
+        MMLogInfo(@"ocr result length: %lu", (unsigned long)inputText.length);
 
         NSDictionary *dict = @{
             @"detectedLanguage" : queryModel.detectedLanguage,
@@ -841,7 +841,7 @@ static BOOL ez_frame_equal_with_tolerance(CGRect lhs, CGRect rhs, CGFloat tolera
         return;
     }
 
-    MMLogInfo(@"query text: %@", self.queryText.truncated);
+    MMLogInfo(@"query text length: %lu", (unsigned long)self.queryText.length);
 
     // !!!: Reset all result before new query.
     [self resetAllResults];
@@ -1987,7 +1987,7 @@ static BOOL ez_frame_equal_with_tolerance(CGRect lhs, CGRect rhs, CGFloat tolera
         return;
     }
 
-    MMLogInfo(@"Auto play English word audio: %@", self.queryText);
+    MMLogInfo(@"Auto play English word audio (length: %lu)", (unsigned long)self.queryText.length);
     [self togglePlayQueryText:YES];
 }
 

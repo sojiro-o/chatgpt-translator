@@ -30,7 +30,7 @@ public class QueryError: NSError, LocalizedError, AbortError, @unchecked Sendabl
             userInfo[NSLocalizedDescriptionKey] = message
         }
 
-        super.init(domain: "com.izual.Easydict.QueryError", code: type.rawValue, userInfo: userInfo)
+        super.init(domain: "io.github.sojiro-o.QuickTranslate.QueryError", code: type.rawValue, userInfo: userInfo)
     }
 
     @available(*, deprecated)

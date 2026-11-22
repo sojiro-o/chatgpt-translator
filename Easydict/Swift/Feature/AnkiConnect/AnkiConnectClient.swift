@@ -519,56 +519,8 @@ final class AnkiConnectClient: NSObject {
     }
 
     func addNote(with result: QueryResult, completion: @escaping (Bool, String) -> ()) {
-        guard Defaults[.enableAnkiConnect] else {
-            completion(false, NSLocalizedString("anki.connect.disabled", comment: ""))
-            return
-        }
-
-        guard let endpoint = configuredEndpoint(completion: completion) else {
-            return
-        }
-
-        let mappings = configuredMappings()
-        let fields = mappings.map { $0.ankiField.trimmed }
-        let templates = mappings.map { $0.template.trimmed }
-        guard !Defaults[.ankiConnectDeck].trimmed.isEmpty,
-              !Defaults[.ankiConnectModel].trimmed.isEmpty,
-              !mappings.isEmpty,
-              fields.allSatisfy({ !$0.isEmpty }),
-              templates.allSatisfy({ !$0.isEmpty })
-        else {
-            completion(false, NSLocalizedString("anki.connect.incomplete_configuration", comment: ""))
-            return
-        }
-
-        guard Set(fields).count == fields.count else {
-            completion(false, NSLocalizedString("anki.connect.duplicate_fields", comment: ""))
-            return
-        }
-
-        let note = notePayload(from: result, mappings: mappings)
-        let requestBody: [String: Any] = [
-            "action": "addNote",
-            "version": 6,
-            "params": [
-                "note": note,
-            ],
-        ]
-
-        logInfo(
-            "AnkiConnect addNote request deck=\(Defaults[.ankiConnectDeck].trimmed), "
-                + "model=\(Defaults[.ankiConnectModel].trimmed), "
-                + "fields=\(fields)"
-        )
-
-        performRequest(endpoint: endpoint, body: requestBody, action: .addNote) { success, object, message in
-            if success {
-                logInfo("AnkiConnect addNote success result=\(String(describing: object?["result"]))")
-            } else {
-                logError("AnkiConnect addNote failed: \(message)")
-            }
-            completion(success, message)
-        }
+        _ = result
+        completion(false, NSLocalizedString("anki.connect.disabled", comment: ""))
     }
 
     func fetchModelFieldNames(completion: @escaping (Bool, [String], String) -> ()) {

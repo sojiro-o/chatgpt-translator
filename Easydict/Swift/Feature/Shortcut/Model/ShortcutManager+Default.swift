@@ -19,13 +19,8 @@ extension ShortcutManager {
     }
 
     private func setDefaultGlobalShortcutKeys() {
-        Defaults[.inputShortcut] = KeyCombo(key: .a, cocoaModifiers: .option)
-        Defaults[.snipShortcut] = KeyCombo(key: .s, cocoaModifiers: .option)
-        Defaults[.selectionShortcut] = KeyCombo(key: .d, cocoaModifiers: .option)
-        Defaults[.showMiniWindowShortcut] = KeyCombo(key: .f, cocoaModifiers: .option)
-        Defaults[.silentScreenshotOCRShortcut] = KeyCombo(
-            key: .s, cocoaModifiers: [.option, .shift]
-        )
+        // QuickTranslate uses double-Cmd+C as its primary trigger and does not
+        // auto-register global Option+A/S/D/F shortcuts on launch.
     }
 
     private func setDefaultAppShortcutKeys() {

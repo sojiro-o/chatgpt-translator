@@ -26,41 +26,44 @@ struct AboutTab: View {
                 .padding(.trailing, 16)
 
             VStack(alignment: .leading) {
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(appName)
                         .font(.system(size: 35, weight: .medium))
-                        .padding(.bottom, 3)
 
                     Text("current_version \(version)")
                         .font(.system(size: 13))
-                        .foregroundColor(.gray)
-                        .padding(.bottom, 29)
+                        .foregroundStyle(.secondary)
+                        .padding(.bottom, 8)
+
+                    Text("setting.about.derivative_notice")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: 440, alignment: .leading)
 
                     Text(copyrightInfo)
                         .font(.system(size: 11))
-                        .foregroundColor(.gray)
-                        .padding(.bottom, 20)
+                        .foregroundStyle(.secondary)
+
+                    Text("setting.about.license_notice")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                        .padding(.bottom, 12)
                 }
 
-                HStack(spacing: 15) {
+                HStack(spacing: 12) {
+                    Button {
+                        NSWorkspace.shared.open(AppConstants.repoURL)
+                    } label: {
+                        Label("setting.about.repository_link", systemSymbol: .starFill)
+                    }
+
                     Button {
                         NSWorkspace.shared.open(
                             URL(string: "https://github.com/tisfeng/Easydict")!
                         )
                     } label: {
-                        Label("setting.about.github_link", systemSymbol: .starFill)
-                    }
-
-                    Button {
-                        NSWorkspace.shared
-                            .open(
-                                URL(
-                                    string:
-                                    "https://github.com/tisfeng/Easydict/graphs/contributors"
-                                )!
-                            )
-                    } label: {
-                        Label("setting.about.contributor_link", systemSymbol: .person3Fill)
+                        Label("setting.about.upstream_link", systemSymbol: .book)
                     }
 
                     Button {

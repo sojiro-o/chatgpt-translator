@@ -17,13 +17,13 @@ import Foundation
 final class AppConstants: NSObject {
     // MARK: - App
 
-    static let bundleID = "com.izual.Easydict"
-    static let debugBundleID = "com.izual.Easydict-debug"
+    static let bundleID = "io.github.sojiro-o.QuickTranslate"
+    static let debugBundleID = "io.github.sojiro-o.QuickTranslate-debug"
 
     // MARK: - Repository
 
-    /// Repository full name, eg. tisfeng/Easydict
-    static let repoName = "tisfeng/Easydict"
+    /// Repository full name, eg. sojiro-o/chatgpt-translator
+    static let repoName = "sojiro-o/chatgpt-translator"
     static let repoURL = URL(string: "https://github.com/\(repoName)")!
     static let releasesURL = repoURL.appending(path: "releases")
     static let issuesURL = repoURL.appending(path: "issues")

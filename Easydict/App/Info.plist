@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>NSAppleEventsUsageDescription</key>
-	<string>Easydict requires permission to execute AppleScript.</string>
+	<string>QuickTranslate requires permission to execute AppleScript.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>$(TARGET_NAME)</string>
+	<string>QuickTranslate</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIconFile</key>
@@ -19,7 +19,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>$(TARGET_NAME)</string>
+	<string>QuickTranslate</string>
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
@@ -32,10 +32,10 @@
 			<key>CFBundleURLIconFile</key>
 			<string>white-black-icon@2x</string>
 			<key>CFBundleURLName</key>
-			<string>com.izual.Easydict</string>
+			<string>io.github.sojiro-o.QuickTranslate</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>easydict</string>
+				<string>quicktranslate</string>
 			</array>
 		</dict>
 	</array>
@@ -47,11 +47,6 @@
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>LSUIElement</key>
 	<true/>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-	</dict>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2023-2025 tisfeng. All rights reserved.</string>
 	<key>NSPrincipalClass</key>
@@ -60,11 +55,7 @@
 	<true/>
 	<key>NSSupportsSuddenTermination</key>
 	<true/>
-	<key>SUFeedURL</key>
-	<string>https://raw.githubusercontent.com/tisfeng/Easydict/main/appcast.xml</string>
-	<key>SUPublicEDKey</key>
-	<string>9Ee1FtAsmJHFD79H4bToJhAOJmTtkTYIUDr23ofEWiU=</string>
 	<key>SUEnableAutomaticChecks</key>
-	<true/>
+	<false/>
 </dict>
 </plist>

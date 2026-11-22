@@ -40,9 +40,6 @@ struct ServiceTab: View {
                     .onReceive(serviceHasUpdatedNotification) { _ in
                         viewModel.updateServices()
                     }
-
-                    ServiceListControls()
-                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .padding(.horizontal, 12)
                 .padding(.bottom, 12)
@@ -53,6 +50,12 @@ struct ServiceTab: View {
                 .layoutPriority(1)
         }
         .environmentObject(viewModel)
+        .onAppear {
+            handleRequestedServiceSelection()
+        }
+        .onChange(of: navigationState.requestedServiceTypeID) { _ in
+            handleRequestedServiceSelection()
+        }
         .onChange(of: viewModel.windowType) { _ in
             viewModel.handleWindowTypeChange()
         }
@@ -61,10 +64,19 @@ struct ServiceTab: View {
     // MARK: Private
 
     @StateObject private var viewModel: ServiceTabViewModel = .init()
+    @ObservedObject private var navigationState = SettingsNavigationState.shared
 
     private let serviceHasUpdatedNotification = NotificationCenter.default
         .publisher(for: .serviceHasUpdated)
         .receive(on: DispatchQueue.main)
+
+    private func handleRequestedServiceSelection() {
+        guard let serviceID = navigationState.requestedServiceTypeID else {
+            return
+        }
+        navigationState.requestedServiceTypeID = nil
+        viewModel.selectServiceIfAvailable(serviceID)
+    }
 }
 
 // MARK: - ServiceTabSelection
@@ -82,8 +94,15 @@ class ServiceTabViewModel: ObservableObject {
 
     init(windowType: EZWindowType = .fixed) {
         self.windowType = windowType
-        self.serviceItems = Self.loadServiceItems(windowType)
+        let items = Self.loadServiceItems(windowType)
+        self.serviceItems = items
         self.availableServiceItems = Self.loadAvailableServiceItems(windowType)
+        if let firstItem = items.first {
+            let initialSelection = ServiceTabSelection.service(firstItem.id)
+            self.selectedItems = [initialSelection]
+            self.selectedItem = initialSelection
+            updateSelectedService()
+        }
     }
 
     // MARK: Internal
@@ -107,8 +126,24 @@ class ServiceTabViewModel: ObservableObject {
 
     /// Refresh services when the window type changes.
     func handleWindowTypeChange() {
-        setSelection([.windowConfiguration])
-        updateServices()
+        let items = Self.loadServiceItems(windowType)
+        serviceItems = items
+        availableServiceItems = Self.loadAvailableServiceItems(windowType)
+        if let firstItem = items.first {
+            let selection = ServiceTabSelection.service(firstItem.id)
+            setSelection([selection], preferred: selection)
+        } else {
+            setSelection([.windowConfiguration])
+        }
+    }
+
+    func selectServiceIfAvailable(_ serviceTypeID: String) {
+        if let matched = serviceItems.first(where: {
+            $0.id == serviceTypeID || $0.type.rawValue == serviceTypeID
+        }) {
+            let selection = ServiceTabSelection.service(matched.id)
+            setSelection([selection], preferred: selection)
+        }
     }
 
     func updateServices() {
@@ -239,15 +274,16 @@ class ServiceTabViewModel: ObservableObject {
     }
 
     private static func loadServiceItems(_ windowType: EZWindowType) -> [ServiceListItem] {
-        serviceItems(from: LocalStorage.shared().allServiceTypes(windowType), windowType: windowType)
+        let filteredTypeIds = LocalStorage.shared().allServiceTypes(windowType).filter { typeId in
+            QueryServiceFactory.shared.metadata(withTypeId: typeId)?.serviceType == .codexCLI
+        }
+        let codexTypeIds = filteredTypeIds.isEmpty ? [ServiceType.codexCLI.rawValue] : filteredTypeIds
+        return serviceItems(from: codexTypeIds, windowType: windowType)
     }
 
     private static func loadAvailableServiceItems(_ windowType: EZWindowType) -> [ServiceListItem] {
-        serviceItems(
-            from: LocalStorage.shared().availableServiceTypeIDs(windowType: windowType),
-            windowType: windowType,
-            forAddition: true
-        )
+        _ = windowType
+        return []
     }
 
     private static func serviceItems(

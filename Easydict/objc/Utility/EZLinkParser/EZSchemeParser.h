@@ -10,9 +10,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// Easydict Scheme: easydict://
-static NSString *const EZAppScheme = @"easydict";
-static NSString *const EZAppDebugScheme = @"easydictd";
+/// QuickTranslate Scheme: quicktranslate://
+static NSString *const EZAppScheme = @"quicktranslate";
+static NSString *const EZAppDebugScheme = @"quicktranslate-debug";
 
 static NSString *const EZWriteKeyValueKey = @"writeKeyValue";
 static NSString *const EZReadValueOfKeyKey = @"readValueOfKey";
