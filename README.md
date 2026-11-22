@@ -56,6 +56,32 @@ xattr -dr com.apple.quarantine /Applications/QuickTranslate.app
 
 Easydict 本体と同時にインストール可能です（Bundle ID は `io.github.sojiro-o.QuickTranslate`、URL スキームは `quicktranslate` で、設定・保存先も別です）。
 
+## アンインストール
+
+Bundle ID が本家と別なので、Easydict 本体には影響しません。
+
+1. 設定 › サービス › ChatGPT で「ログアウト」を押します（キーチェーンに保存された ChatGPT のログイン情報を Codex が削除します）。「ログイン時に起動」をオンにしていた場合はオフにします。
+2. メニューバーのアイコンから「QuickTranslate を終了」を選びます。
+3. ターミナルでアプリと保存データを削除します（Codex コンポーネントと Codex の状態は Application Support 内にあります）。
+
+```bash
+rm -rf /Applications/QuickTranslate.app
+rm -rf ~/Library/Application\ Support/io.github.sojiro-o.QuickTranslate
+rm -rf ~/Library/Caches/io.github.sojiro-o.QuickTranslate
+rm -rf ~/Library/HTTPStorages/io.github.sojiro-o.QuickTranslate
+rm -rf ~/Library/Saved\ Application\ State/io.github.sojiro-o.QuickTranslate.savedState
+defaults delete io.github.sojiro-o.QuickTranslate
+rm -rf "$TMPDIR"/quicktranslate-codex-*
+```
+
+4. 入力監視の許可を取り消します（「システム設定 › プライバシーとセキュリティ › 入力監視」で QuickTranslate を「−」で削除しても同じです）。
+
+```bash
+tccutil reset ListenEvent io.github.sojiro-o.QuickTranslate
+```
+
+ログアウトせずに削除した場合は、「キーチェーンアクセス」で「codex」を検索し、QuickTranslate が作成した項目を削除してください。ご自身の Codex CLI の項目と取り違えないよう注意してください。迷う場合は、アプリを入れ直してログアウトしてから削除するのが確実です。
+
 ## 自分でビルドする
 
 ビルドには **Xcode 27** が必要です（macOS 26 SDK 以降の API を含みます）。CocoaPods の依存（Pods）はリポジトリに同梱されているため `pod install` は不要です。
