@@ -16,7 +16,6 @@ readonly APP_NAME="QuickTranslate.app"
 readonly PROCESS_NAME="QuickTranslate"
 readonly ZIP_URL="https://github.com/sojiro-o/chatgpt-translator/releases/latest/download/QuickTranslate.zip"
 readonly SHA256_URL="https://github.com/sojiro-o/chatgpt-translator/releases/latest/download/QuickTranslate.zip.sha256"
-readonly SIGNING_REQ='identifier "io.github.sojiro-o.QuickTranslate" and certificate leaf = H"2697524092a9b371d9be557c80d82f6a20557eb1"'
 
 TMP_BASE="${TMPDIR:-/tmp}"
 TMP_BASE="${TMP_BASE%/}"
@@ -47,8 +46,8 @@ if [ ! -d "$NEW_APP" ]; then
   exit 1
 fi
 
-echo "コード署名とバンドル ID を検証しています..."
-if ! codesign --verify --strict -R "=$SIGNING_REQ" "$NEW_APP"; then
+echo "コード署名（改ざんの有無）とバンドル ID を検証しています..."
+if ! codesign --verify --strict "$NEW_APP"; then
   echo "エラー: アプリの署名検証に失敗しました。インストールを中止します。" >&2
   exit 1
 fi
@@ -93,15 +92,10 @@ case "$DEST_APP" in
     ;;
 esac
 
-TCC_RESET_DONE=0
-if [ -d "$DEST_APP" ]; then
-  if ! codesign --verify --strict -R "=$SIGNING_REQ" "$DEST_APP" >/dev/null 2>&1; then
-    echo "既存のアプリが異なる署名（ad-hoc 版など）のため、古い権限設定をリセットします..."
-    tccutil reset All "$BUNDLE_ID" >/dev/null 2>&1 || true
-    TCC_RESET_DONE=1
-    echo "入力監視の許可をもう一度求められます。"
-  fi
-fi
+# ad-hoc 署名はビルドごとに変わるため、古い許可が残っていると「オンなのに動かない」状態になる。
+# 置き換える前に、このアプリの許可だけを毎回リセットする。
+echo "古い権限設定（入力監視）をリセットしています..."
+tccutil reset All "$BUNDLE_ID" >/dev/null 2>&1 || true
 
 if pgrep -x "$PROCESS_NAME" >/dev/null 2>&1; then
   echo "実行中の $PROCESS_NAME を終了しています..."
@@ -136,9 +130,5 @@ else
   echo "  ビルド番号: $BUILD_VERSION"
 fi
 echo "  インストール先: $DEST_APP"
-echo "  今後の更新: メニューバーの「アップデートを確認…」から更新できます。"
-if [ "$TCC_RESET_DONE" -eq 1 ]; then
-  echo "  権限について: 古い署名の権限をリセットしたため、入力監視の許可をもう一度求められます（「システム設定 > プライバシーとセキュリティ > 入力監視」）。"
-else
-  echo "  権限について: 初回は入力監視の許可が必要です（「システム設定 > プライバシーとセキュリティ > 入力監視」）。"
-fi
+echo "  権限: 「システム設定 > プライバシーとセキュリティ > 入力監視」で QuickTranslate をオンにしてください（更新のたびに必要です）。"
+echo "  更新: 同じコマンドをもう一度実行してください（メニューの「アップデートを確認…」で新しい版の有無を確認できます）。"

@@ -24,11 +24,6 @@ jobs:
       DERIVED: ${{ github.workspace }}/build/DerivedData
       SPM_DIR: ${{ github.workspace }}/build/SourcePackages
       LOG_DIR: ${{ github.workspace }}/build/logs
-      # A fixed self-signed identity keeps macOS privacy permissions (Input Monitoring)
-      # across updates. Without the secrets (e.g. forks), the app stays ad-hoc signed.
-      HAS_SIGNING_IDENTITY: ${{ secrets.QT_SIGNING_P12_BASE64 != '' }}
-      SIGNING_IDENTITY: QuickTranslate Local Signing
-      SIGNING_REQUIREMENT: 'identifier "io.github.sojiro-o.QuickTranslate" and certificate leaf = H"2697524092a9b371d9be557c80d82f6a20557eb1"'
       # Skip SwiftFormat/SwiftLint run-script phases and sign ad hoc (no Apple Developer account needed).
       COMMON_SETTINGS: >-
         EASYDICT_RELEASE_PACKAGING=YES
@@ -74,33 +69,6 @@ jobs:
             }
           grep -E 'warning:.*(DoubleCopy|QuickTranslate)' "$LOG_DIR/build.log" | sort -u | head -50 || true
           tail -5 "$LOG_DIR/build.log"
-
-      - name: Sign app with the QuickTranslate certificate
-        if: env.HAS_SIGNING_IDENTITY == 'true'
-        env:
-          QT_SIGNING_P12_BASE64: ${{ secrets.QT_SIGNING_P12_BASE64 }}
-          QT_SIGNING_P12_PASSWORD: ${{ secrets.QT_SIGNING_P12_PASSWORD }}
-        run: |
-          set -euo pipefail
-          KC="$RUNNER_TEMP/qt-signing.keychain-db"
-          KCPASS="$(uuidgen)"
-          P12="$RUNNER_TEMP/qt-signing.p12"
-          trap 'rm -f "$P12"; security delete-keychain "$KC" 2>/dev/null || true' EXIT
-          security create-keychain -p "$KCPASS" "$KC"
-          security set-keychain-settings -lut 3600 "$KC"
-          security unlock-keychain -p "$KCPASS" "$KC"
-          printf '%s' "$QT_SIGNING_P12_BASE64" | base64 --decode > "$P12"
-          security import "$P12" -k "$KC" -P "$QT_SIGNING_P12_PASSWORD" -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KCPASS" "$KC" > /dev/null
-          security find-identity -p codesigning "$KC"
-          APP="$DERIVED/Build/Products/Release/QuickTranslate.app"
-          # Re-sign only the outer bundle; nested frameworks keep their ad-hoc signatures
-          # (hardened runtime is off, so library validation does not apply).
-          codesign --force --sign "$SIGNING_IDENTITY" --keychain "$KC" --timestamp=none \
-            --entitlements Easydict/App/Easydict.entitlements "$APP"
-          codesign --verify --verbose=2 "$APP"
-          codesign -d -r- "$APP"
-          codesign --verify --strict -R "=$SIGNING_REQUIREMENT" "$APP"
 
       - name: Check app identity and privacy settings
         run: |
@@ -157,7 +125,7 @@ jobs:
           grep -a -E 'Test run with|✔|✘|Executed' "$LOG_DIR/test.log" | tail -40
 
       - name: Publish release
-        if: env.HAS_SIGNING_IDENTITY == 'true' && github.ref == 'refs/heads/quicktranslate' && github.event_name != 'pull_request'
+        if: github.ref == 'refs/heads/quicktranslate' && github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -181,11 +149,11 @@ jobs:
 
           ### 更新
 
-          すでにインストール済みの場合は、メニューバーの「アップデートを確認…」から更新できます（上のコマンドの再実行でも更新できます）。
+          更新するときも同じコマンドを実行します。更新後は「システム設定 › プライバシーとセキュリティ › 入力監視」で QuickTranslate をもう一度オンにしてください。
 
           ### 署名について
 
-          ad-hoc ではなく固定の自己署名証明書で署名済み。Apple の公証はなし。
+          ad-hoc 署名のみ（Apple の公証なし）。
           EOF
           } > "$NOTES_FILE"
 

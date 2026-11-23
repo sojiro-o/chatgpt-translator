@@ -48,13 +48,13 @@ QuickTranslate は、macOS 向け翻訳アプリ [Easydict](https://github.com/t
 
 ### 1. ターミナルでインストール（おすすめ）
 
-次の 1 行をターミナルで実行します。`curl` でダウンロードするため macOS の隔離属性（`com.apple.quarantine`）が付かず、初回の `xattr` 解除は不要です。
+次の 1 行をターミナルで実行します。`curl` でダウンロードするため macOS の隔離属性（`com.apple.quarantine`）が付かず、`xattr` での解除は不要です。
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/sojiro-o/chatgpt-translator/quicktranslate/scripts/install.sh | bash
 ```
 
-スクリプトは GitHub Releases から最新版を取得し、SHA-256 とコード署名を検証したうえで `/Applications/QuickTranslate.app`（書き込み不可の場合は `~/Applications/QuickTranslate.app`）へ配置して起動します。
+スクリプトは GitHub Releases から最新版を取得し、SHA-256 とコード署名（改ざんの有無）を検証したうえで `/Applications/QuickTranslate.app`（書き込み不可の場合は `~/Applications/QuickTranslate.app`）へ配置して起動します。
 
 ### 2. 手動でインストール
 
@@ -70,15 +70,14 @@ xattr -dr com.apple.quarantine /Applications/QuickTranslate.app
 
 ### 署名と Easydict 共存について
 
-- Releases のビルドは、このリポジトリ専用の固定の自己署名証明書（「QuickTranslate Local Signing」）で署名済みです（Apple の公証は受けていません）。同じ署名で更新されるため、一度「入力監視」を許可すれば更新後も許可が残ります（以前の ad-hoc 版から移行する場合のみ、権限がリセットされ再許可を求められます）。
+- Releases のビルドは ad-hoc 署名のみで、Apple の公証は受けていません。ad-hoc 署名はビルドごとに変わるため、macOS は更新後のアプリを別物とみなし、「入力監視」の許可が外れます。インストール用スクリプトは古い許可を自動でリセットするので、更新のたびに「システム設定 › プライバシーとセキュリティ › 入力監視」で QuickTranslate をもう一度オンにしてください（[Issue #8](https://github.com/sojiro-o/chatgpt-translator/issues/8)）。
 - Easydict 本体と同時にインストール可能です（Bundle ID は `io.github.sojiro-o.QuickTranslate`、URL スキームは `quicktranslate` で、設定・保存先も別です）。
 
 ## アップデート
 
-- メニューバーの **「アップデートを確認…」** から更新できます。
-- 自動の更新確認は行いません。メニューを押したときだけ GitHub に接続し、最新版があれば SHA-256 とコード署名（固定の自己署名証明書）を検証してからアプリを置き換えて再起動します。
-- 固定の自己署名証明書で署名されているため、「入力監視」の許可はそのまま残ります。
-- 上記のインストールコマンドをターミナルで再実行して更新することもできます。
+- 上のインストール用コマンドをもう一度実行します（起動中のアプリは自動で終了し、置き換えて起動し直します）。
+- 更新後は「入力監視」をもう一度オンにしてください。
+- メニューバーの **「アップデートを確認…」** を押すと、新しい版があるかを確認し、更新用のコマンドをコピーできます。自動の更新確認は行いません（押したときだけ GitHub に接続します）。
 
 ## アンインストール
 
@@ -168,7 +167,7 @@ API キーは不要で、入力欄もありません。API 従量課金に切り
 2. 「システム設定 > プライバシーとセキュリティ > 入力監視」を開き、`QuickTranslate` をオンにします。
 
 - アクセシビリティや画面収録は既定では要求しません（Easydict の選択テキスト自動取得・OCR は無効化しています）。
-- Releases で配布しているビルドは固定の自己署名証明書で署名済みのため、更新後も許可が引き継がれます。自分でビルドした署名なし版では更新のたびに許可をやり直す必要がある場合があります（[Issue #8](https://github.com/sojiro-o/chatgpt-translator/issues/8)）。
+- ビルドは ad-hoc 署名のため、更新のたびに入力監視の許可をやり直す必要があります。インストール用スクリプトを使うと古い許可は自動でリセットされます（[Issue #8](https://github.com/sojiro-o/chatgpt-translator/issues/8)）。
 
 ## 設定
 
@@ -209,7 +208,7 @@ API キーは不要で、入力欄もありません。API 従量課金に切り
 | `github.com/openai/codex/releases`（および GitHub のダウンロード用 CDN） | Codex コンポーネントの初回ダウンロード | ユーザー操作時のみ |
 | `auth.openai.com` | ChatGPT サインイン | ブラウザで認証 |
 | `chatgpt.com/backend-api/` | 翻訳 | ChatGPT（Codex 経由） |
-| `api.github.com` / `github.com` / GitHub のリリースファイル配信先（`release-assets.githubusercontent.com` 等のリダイレクト先） | アプリのアップデート確認・ダウンロード | 「アップデートを確認…」を押したときだけ |
+| `api.github.com` | 最新版の確認 | 「アップデートを確認…」を押したときだけ |
 
 これ以外の通信は既定では行いません（他サービスのコードは残っていますが、無効化しています）。
 
@@ -219,7 +218,7 @@ API キーは不要で、入力欄もありません。API 従量課金に切り
 2. **クレジットの自動消費**: ChatGPT のクレジットを購入済みの場合、利用枠を超えた後にクレジットが自動で消費されることがあります。避けるにはクレジットを持たないか、ChatGPT の「設定 > 使用量」で `Automatic reload` をオフにしてください（[Issue #2](https://github.com/sojiro-o/chatgpt-translator/issues/2)）。
 3. **利用方式と仕様変更のリスク**: 公式 Codex 本体を起動して `codex login` でサインインする方式を第三者アプリから使うことについて、OpenAI の公式文書は許可も禁止も明記していません。公式には別の「Sign in with ChatGPT」方式がオープンソース向けに案内されています（[Issue #1](https://github.com/sojiro-o/chatgpt-translator/issues/1)）。仕様変更で使えなくなる可能性があります。個人のローカル利用を想定しており、商用・ホスティング用途には使わないでください。
 4. **機密情報の取り扱い**: 機密文書を翻訳する場合は、所属組織の規程と OpenAI のデータ取り扱いを確認してください。
-5. **自己署名・Apple 公証なし**: Releases のビルドはリポジトリ専用の固定の自己署名証明書で署名していますが、Apple の公証は受けていません。入手元（このリポジトリの Releases）および SHA-256・署名を確認して利用してください。
+5. **ad-hoc 署名・Apple 公証なし**: 配布元の身元を証明する署名はありません。入手元（このリポジトリの Releases）を確認して利用してください。インストール用スクリプトは SHA-256 とコード署名の整合性（改ざんの有無）を確認します。
 
 ## テスト結果
 
