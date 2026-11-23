@@ -54,6 +54,8 @@ QuickTranslate は、macOS 向け翻訳アプリ [Easydict](https://github.com/t
 xattr -dr com.apple.quarantine /Applications/QuickTranslate.app
 ```
 
+CI のビルドは、このリポジトリ専用の自己署名証明書（「QuickTranslate Local Signing」）で毎回同じ署名をしています。そのため、一度「入力監視」を許可すれば、更新後も許可が残ります（署名用の Secrets がない環境では署名なしのビルドになります）。Apple の公証は受けていないので、初回の `xattr` か「このまま開く」は引き続き必要です。
+
 Easydict 本体と同時にインストール可能です（Bundle ID は `io.github.sojiro-o.QuickTranslate`、URL スキームは `quicktranslate` で、設定・保存先も別です）。
 
 ## アンインストール
