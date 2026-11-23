@@ -1161,6 +1161,16 @@ static BOOL ez_frame_equal_with_tolerance(CGRect lhs, CGRect rhs, CGFloat tolera
             // ???: need to check.
 
             [self.tableView reloadDataForRowIndexes:rowIndexes columnIndexes:[NSIndexSet indexSetWithIndex:0]];
+            // QuickTranslate: build the reloaded cells now. result.viewHeight is only computed when
+            // EZResultView receives its result, so measuring before that leaves a single-service popup
+            // stuck at header height (e.g. when the only service fails immediately).
+            if (self.tableView.numberOfColumns > 0) {
+                [rowIndexes enumerateIndexesUsingBlock:^(NSUInteger row, BOOL *stop) {
+                    if ((NSInteger)row < self.tableView.numberOfRows) {
+                        [self.tableView viewAtColumn:0 row:row makeIfNecessary:YES];
+                    }
+                }];
+            }
         }
 
         [self updateRowHeightsWithoutAnimation:rowIndexes];
@@ -1567,9 +1577,21 @@ static BOOL ez_frame_equal_with_tolerance(CGRect lhs, CGRect rhs, CGFloat tolera
     }
 
     EZQueryResult *result = service.result;
+    CGFloat previousRowHeight = result.isShowing ? MAX(result.viewHeight, EZResultViewMiniHeight) : EZResultViewMiniHeight;
     resultCell.associatedWindowType = self.windowType;
     resultCell.service = service;
     resultCell.result = result;
+    // QuickTranslate: if configuring the cell changed its height (cells may be built lazily during
+    // drawing), refresh the row and window height on the next turn so the content is not clipped.
+    CGFloat updatedRowHeight = result.isShowing ? MAX(result.viewHeight, EZResultViewMiniHeight) : EZResultViewMiniHeight;
+    if (fabs(updatedRowHeight - previousRowHeight) >= EZLayoutGeometryTolerance_0_5) {
+        mm_weakify(self);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            mm_strongify(self);
+            [self updateResultCellHeight:result];
+            [self updateWindowHeight];
+        });
+    }
     [self setupResultCell:resultCell];
 
     WKWebView *webView = nil;
