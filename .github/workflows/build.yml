@@ -15,9 +15,11 @@ concurrency:
 
 jobs:
   build:
-    name: Build and test (unsigned)
+    name: Build and test
     runs-on: xcode-27
     timeout-minutes: 120
+    permissions:
+      contents: write
     env:
       DERIVED: ${{ github.workspace }}/build/DerivedData
       SPM_DIR: ${{ github.workspace }}/build/SourcePackages
@@ -26,6 +28,7 @@ jobs:
       # across updates. Without the secrets (e.g. forks), the app stays ad-hoc signed.
       HAS_SIGNING_IDENTITY: ${{ secrets.QT_SIGNING_P12_BASE64 != '' }}
       SIGNING_IDENTITY: QuickTranslate Local Signing
+      SIGNING_REQUIREMENT: 'identifier "io.github.sojiro-o.QuickTranslate" and certificate leaf = H"2697524092a9b371d9be557c80d82f6a20557eb1"'
       # Skip SwiftFormat/SwiftLint run-script phases and sign ad hoc (no Apple Developer account needed).
       COMMON_SETTINGS: >-
         EASYDICT_RELEASE_PACKAGING=YES
@@ -40,6 +43,7 @@ jobs:
           xcodebuild -version
           sw_vers
           mkdir -p "$LOG_DIR"
+          echo "BUILD_NUMBER=$((1000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
 
       - name: Cache Swift packages
         uses: actions/cache@v6
@@ -59,6 +63,7 @@ jobs:
             -clonedSourcePackagesDirPath "$SPM_DIR" \
             -skipPackagePluginValidation \
             -skipMacroValidation \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             $COMMON_SETTINGS \
             > "$LOG_DIR/build.log" 2>&1 || {
               echo "::group::Compiler errors"
@@ -95,6 +100,7 @@ jobs:
             --entitlements Easydict/App/Easydict.entitlements "$APP"
           codesign --verify --verbose=2 "$APP"
           codesign -d -r- "$APP"
+          codesign --verify --strict -R "=$SIGNING_REQUIREMENT" "$APP"
 
       - name: Check app identity and privacy settings
         run: |
@@ -103,11 +109,13 @@ jobs:
           test -d "$APP"
           /usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$PLIST"
           /usr/libexec/PlistBuddy -c 'Print :CFBundleName' "$PLIST"
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$PLIST"
           /usr/libexec/PlistBuddy -c 'Print :CFBundleURLTypes' "$PLIST"
           if /usr/libexec/PlistBuddy -c 'Print :SUFeedURL' "$PLIST" 2>/dev/null; then
             echo "::error::SUFeedURL must not be set (update checks are disabled)"; exit 1
           fi
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$PLIST")" != "com.izual.Easydict"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$PLIST")" = "$BUILD_NUMBER"
           codesign -dv "$APP" 2>&1 | head -5
           lipo -info "$APP/Contents/MacOS/QuickTranslate"
 
@@ -147,6 +155,61 @@ jobs:
             }
           # Swift Testing prints ✔/✘ lines; XCTest prints "Executed N tests".
           grep -a -E 'Test run with|✔|✘|Executed' "$LOG_DIR/test.log" | tail -40
+
+      - name: Publish release
+        if: env.HAS_SIGNING_IDENTITY == 'true' && github.ref == 'refs/heads/quicktranslate' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          test -f QuickTranslate.zip
+          shasum -a 256 QuickTranslate.zip > QuickTranslate.zip.sha256
+          cat QuickTranslate.zip.sha256
+
+          TAG="build-$BUILD_NUMBER"
+          TITLE="QuickTranslate (build $BUILD_NUMBER)"
+          NOTES_FILE="$RUNNER_TEMP/release-notes.md"
+          {
+            printf 'Commit: `%s`\n\n' "$GITHUB_SHA"
+            cat <<'EOF'
+          ### インストール
+
+          ```bash
+          curl -fsSL https://raw.githubusercontent.com/sojiro-o/chatgpt-translator/quicktranslate/scripts/install.sh | bash
+          ```
+
+          ### 更新
+
+          すでにインストール済みの場合は、メニューバーの「アップデートを確認…」から更新できます（上のコマンドの再実行でも更新できます）。
+
+          ### 署名について
+
+          ad-hoc ではなく固定の自己署名証明書で署名済み。Apple の公証はなし。
+          EOF
+          } > "$NOTES_FILE"
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" QuickTranslate.zip QuickTranslate.zip.sha256 --clobber
+            gh release edit "$TAG" --title "$TITLE" --notes-file "$NOTES_FILE" --latest
+          else
+            gh release create "$TAG" QuickTranslate.zip QuickTranslate.zip.sha256 \
+              --target "$GITHUB_SHA" \
+              --title "$TITLE" \
+              --notes-file "$NOTES_FILE" \
+              --latest
+          fi
+
+          OLD_TAGS="$(
+            gh release list --limit 100 --json tagName \
+              --jq '[.[].tagName | select(test("^build-[0-9]+$"))] | sort_by(ltrimstr("build-") | tonumber) | reverse | .[5:][]'
+          )"
+          if [ -n "$OLD_TAGS" ]; then
+            while IFS= read -r old_tag; do
+              [ -n "$old_tag" ] || continue
+              gh release delete "$old_tag" --cleanup-tag --yes
+            done <<< "$OLD_TAGS"
+          fi
 
       - name: Upload logs
         if: always()
