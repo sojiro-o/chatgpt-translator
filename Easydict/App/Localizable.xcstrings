@@ -26063,6 +26063,24 @@
         }
       }
     },
+    "menu.check_for_updates" : {
+      "comment" : "Menu bar item to check for QuickTranslate updates",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check for Updates..."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アップデートを確認…"
+          }
+        }
+      }
+    },
     "menu.quit_quicktranslate" : {
       "comment" : "Menu bar item to quit QuickTranslate",
       "extractionState" : "manual",
@@ -26095,6 +26113,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ChatGPT にログイン..."
+          }
+        }
+      }
+    },
+    "menu.uninstall_quicktranslate" : {
+      "comment" : "Menu bar item to uninstall QuickTranslate",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uninstall QuickTranslate..."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QuickTranslate をアンインストール…"
           }
         }
       }
@@ -26167,6 +26203,636 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "原プロジェクト (Easydict)"
+          }
+        }
+      }
+    },
+    "uninstaller.confirm.cancel" : {
+      "comment" : "Cancel button in uninstall confirmation alert",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャンセル"
+          }
+        }
+      }
+    },
+    "uninstaller.confirm.message" : {
+      "comment" : "Body text in uninstall confirmation alert",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will sign out of ChatGPT, remove settings, downloaded Codex components, and granted permissions (such as Input Monitoring), and move the app to the Trash. Data stored on OpenAI's servers will not be deleted by this operation."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ChatGPT からログアウトし、設定・ダウンロードした Codex コンポーネント・権限（入力監視など）の許可を削除して、アプリをゴミ箱に移します。OpenAI 側に保存されたデータは、この操作では削除されません。"
+          }
+        }
+      }
+    },
+    "uninstaller.confirm.title" : {
+      "comment" : "Title of uninstall confirmation alert",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uninstall QuickTranslate?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QuickTranslate をアンインストールしますか？"
+          }
+        }
+      }
+    },
+    "uninstaller.confirm.uninstall" : {
+      "comment" : "Confirm button in uninstall confirmation alert",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uninstall"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アンインストール"
+          }
+        }
+      }
+    },
+    "uninstaller.done.cleanup_warning" : {
+      "comment" : "Warning when post-exit cleanup helper could not be launched",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not start the background cleanup task. Some local settings or cache files may remain."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "終了後のクリーンアップ処理を起動できませんでした。一部の設定やキャッシュが残る場合があります。"
+          }
+        }
+      }
+    },
+    "uninstaller.done.logout_warning" : {
+      "comment" : "Warning when ChatGPT logout failed during uninstall",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign-out from ChatGPT did not complete. Login credentials may remain in your Keychain (search for \"Codex Auth\" in Keychain Access)."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ChatGPT からのログアウトを完了できませんでした。キーチェーンにログイン情報が残っている可能性があります（キーチェーンアクセスで \"Codex Auth\" を検索してください）。"
+          }
+        }
+      }
+    },
+    "uninstaller.done.message" : {
+      "comment" : "Body text of uninstall completion alert",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QuickTranslate will now quit and finish removing remaining local data."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QuickTranslate を終了し、残りのローカルデータの削除を完了します。"
+          }
+        }
+      }
+    },
+    "uninstaller.done.title" : {
+      "comment" : "Title of uninstall completion alert",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QuickTranslate Uninstalled"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アンインストールしました。"
+          }
+        }
+      }
+    },
+    "uninstaller.done.trash_warning" : {
+      "comment" : "Warning when app bundle could not be moved to Trash",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not move the app to the Trash automatically. Please move QuickTranslate.app to the Trash manually."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリをゴミ箱に移せませんでした。アプリは手動でゴミ箱に移してください。"
+          }
+        }
+      }
+    },
+    "updater.alert.cancel" : {
+      "comment" : "Cancel button in updater alert",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャンセル"
+          }
+        }
+      }
+    },
+    "updater.alert.close" : {
+      "comment" : "Close button in updater alert",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "閉じる"
+          }
+        }
+      }
+    },
+    "updater.alert.copy_command" : {
+      "comment" : "Button to copy Terminal install command",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy Command"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コマンドをコピー"
+          }
+        }
+      }
+    },
+    "updater.alert.ok" : {
+      "comment" : "OK button in maintenance alerts",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "updater.alert.yes" : {
+      "comment" : "Confirm button in update confirmation alert",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yes"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "はい"
+          }
+        }
+      }
+    },
+    "updater.available.message" : {
+      "comment" : "Body text when a newer build is available",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Do you want to update now? The app will relaunch after updating."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新しますか？ 更新後にアプリが再起動します。"
+          }
+        }
+      }
+    },
+    "updater.available.title %@" : {
+      "comment" : "Title when a newer build is available",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Version Available (Build %@)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しいバージョン（ビルド %@）があります"
+          }
+        }
+      }
+    },
+    "updater.error.bundle_mismatch" : {
+      "comment" : "Error when downloaded app bundle ID or version mismatches",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The downloaded app identifier or build number did not match."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ダウンロードしたアプリの識別子またはビルド番号が一致しませんでした。"
+          }
+        }
+      }
+    },
+    "updater.error.checksum_mismatch" : {
+      "comment" : "Error when downloaded zip SHA-256 verification fails",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The downloaded file failed SHA-256 verification."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ダウンロードしたファイルの SHA-256 検証に失敗しました。"
+          }
+        }
+      }
+    },
+    "updater.error.extract_failed" : {
+      "comment" : "Error when zip extraction fails",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to extract the update archive."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アップデートファイルの展開に失敗しました。"
+          }
+        }
+      }
+    },
+    "updater.error.file_too_large" : {
+      "comment" : "Error when downloaded zip exceeds maximum size limit",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The downloaded update package exceeds the maximum allowed size."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ダウンロードファイルがサイズ上限を超えたため中止しました。"
+          }
+        }
+      }
+    },
+    "updater.error.invalid_current_build" : {
+      "comment" : "Error when current CFBundleVersion cannot be parsed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not determine the current build number."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在のビルド番号を取得できませんでした。"
+          }
+        }
+      }
+    },
+    "updater.error.invalid_download_url" : {
+      "comment" : "Error when release asset download URL does not match allowed prefix",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The download URL is not allowed."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "許可されていないダウンロード URL が検出されたため中止しました。"
+          }
+        }
+      }
+    },
+    "updater.error.invalid_release" : {
+      "comment" : "Error when GitHub Release JSON is malformed or missing assets",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The release information could not be read."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リリース情報を正しく読み取れませんでした。"
+          }
+        }
+      }
+    },
+    "updater.error.launch_failed %@" : {
+      "comment" : "Error when update helper shell process fails to launch",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to start the update installer.\n%@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新処理の起動に失敗しました。\n%@"
+          }
+        }
+      }
+    },
+    "updater.error.network %@" : {
+      "comment" : "Error when update network request fails",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to connect to the update server.\n%@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新サーバーへの接続に失敗しました。\n%@"
+          }
+        }
+      }
+    },
+    "updater.error.signature_invalid" : {
+      "comment" : "Error when downloaded app fails code signature requirement check",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Code signature verification of the downloaded app failed."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ダウンロードしたアプリの署名検証に失敗しました。"
+          }
+        }
+      }
+    },
+    "updater.error.title" : {
+      "comment" : "Title of updater error alert",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update Failed"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アップデートに失敗しました"
+          }
+        }
+      }
+    },
+    "updater.not_writable.message %@" : {
+      "comment" : "Body when app installation folder is not writable",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QuickTranslate does not have permission to write to its installation folder. Please update by running the following command in Terminal:\n\n%@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "インストール先フォルダへの書き込み権限がないため更新できません。ターミナルで次のコマンドを実行して入れ直してください。\n\n%@"
+          }
+        }
+      }
+    },
+    "updater.not_writable.title" : {
+      "comment" : "Title when app installation folder is not writable",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cannot Replace Application"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリを置き換えられません"
+          }
+        }
+      }
+    },
+    "updater.translocated.message %@" : {
+      "comment" : "Body when app is running from App Translocation",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QuickTranslate is running from a temporary location (App Translocation). Please move the app to the Applications folder and relaunch it before updating.\n\nAlternatively, reinstall using Terminal:\n\n%@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QuickTranslate が一時的な場所（App Translocation）から実行されています。アプリを「アプリケーション」フォルダに移して起動し直してからお試しください。\n\nまたは、ターミナルで次のコマンドを実行して入れ直してください。\n\n%@"
+          }
+        }
+      }
+    },
+    "updater.translocated.title" : {
+      "comment" : "Title when app is running from App Translocation",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move QuickTranslate to Applications"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「アプリケーション」フォルダに移動してください"
+          }
+        }
+      }
+    },
+    "updater.unsupported.message %@" : {
+      "comment" : "Body when running build is not officially signed for in-app updates",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This build does not support in-app updates. Please reinstall by running the following command in Terminal:\n\n%@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この版はアプリ内アップデートに対応していません。ターミナルで次のコマンドを実行して入れ直してください。\n\n%@"
+          }
+        }
+      }
+    },
+    "updater.unsupported.title" : {
+      "comment" : "Title when running build is not officially signed for in-app updates",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In-App Update Not Supported"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリ内アップデートに対応していません"
+          }
+        }
+      }
+    },
+    "updater.up_to_date.message %@" : {
+      "comment" : "Body when the current build is already up to date",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QuickTranslate is up to date (Build %@)."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最新版です（ビルド %@）"
+          }
+        }
+      }
+    },
+    "updater.up_to_date.title" : {
+      "comment" : "Title when the current build is already up to date",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You're Up to Date"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最新版です"
           }
         }
       }

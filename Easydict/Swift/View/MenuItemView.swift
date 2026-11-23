@@ -34,6 +34,11 @@ struct MenuItemView: View {
 
             Divider()
 
+            checkForUpdatesItem
+            uninstallItem
+
+            Divider()
+
             quitItem.keyboardShortcut(.init("q"))
         }
     }
@@ -106,6 +111,26 @@ struct MenuItemView: View {
                 NSApplication.shared.sendAction(
                     Selector(("showSettingsWindow:")), to: nil, from: nil
                 )
+            }
+        }
+    }
+
+    /// Check for updates item
+    @ViewBuilder private var checkForUpdatesItem: some View {
+        Button("menu.check_for_updates") {
+            logInfo("Check for Updates")
+            Task { @MainActor in
+                QuickTranslateUpdater.shared.checkForUpdates()
+            }
+        }
+    }
+
+    /// Uninstall QuickTranslate item
+    @ViewBuilder private var uninstallItem: some View {
+        Button("menu.uninstall_quicktranslate") {
+            logInfo("Uninstall QuickTranslate")
+            Task { @MainActor in
+                QuickTranslateUninstaller.shared.uninstall()
             }
         }
     }

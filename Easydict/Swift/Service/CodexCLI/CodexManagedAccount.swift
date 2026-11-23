@@ -196,6 +196,106 @@ final class CodexManagedAccount: ObservableObject {
         }
     }
 
+    /// Cancels any active account operation, signs out of ChatGPT, and waits up to `timeout` seconds.
+    /// Returns `true` when logout succeeds or when the Codex component is not installed.
+    func logoutAndWait(timeout: TimeInterval = 20) async -> Bool {
+        let previous = operation
+        process?.cancel()
+        validation?.cancel()
+        previous?.cancel()
+
+        let generation = begin(state: .checking, kind: .authentication(.logout))
+        let effectiveTimeout = max(timeout, 1)
+        let deadline = ProcessInfo.processInfo.systemUptime + effectiveTimeout
+
+        let logoutTask = Task<Bool, Never> {
+            if let previous {
+                await previous.value
+            }
+            guard self.generation == generation, !Task.isCancelled else {
+                return false
+            }
+
+            await CodexManagedAppServer.shared.invalidate()
+
+            let runtime: CodexManagedRuntime
+            do {
+                runtime = try await runtimeFactory()
+            } catch let error as CodexManagedError where error == .componentMissing {
+                if self.generation == generation {
+                    authenticationState = false
+                    verificationResult = nil
+                    accountError = nil
+                    state = .signedOut
+                }
+                return true
+            } catch {
+                if self.generation == generation {
+                    setFailureState(error)
+                    accountError = error
+                }
+                return false
+            }
+
+            let remaining = deadline - ProcessInfo.processInfo.systemUptime
+            guard remaining > 0 else {
+                return false
+            }
+
+            do {
+                try check(generation)
+                let result = try await runtime.command(
+                    ["logout"],
+                    process: nextProcess(),
+                    timeout: remaining
+                )
+                try check(generation)
+                guard result.exitCode == 0 else { throw CodexManagedError.authenticationFailed }
+                authenticationState = false
+                verificationResult = nil
+                accountError = nil
+                state = .signedOut
+                return true
+            } catch is CancellationError {
+                return false
+            } catch {
+                if self.generation == generation {
+                    setFailureState(error)
+                    accountError = error
+                }
+                return false
+            }
+        }
+
+        let operationTask = Task<Void, Never> {
+            await withTaskCancellationHandler {
+                _ = await logoutTask.value
+            } onCancel: {
+                logoutTask.cancel()
+            }
+            finish(generation: generation)
+        }
+        operation = operationTask
+
+        let succeeded: Bool
+        do {
+            succeeded = try await Task.withTimeout(seconds: effectiveTimeout) {
+                await logoutTask.value
+            }
+            await operationTask.value
+        } catch {
+            if self.generation == generation {
+                process?.cancel()
+            }
+            logoutTask.cancel()
+            operationTask.cancel()
+            finish(generation: generation)
+            succeeded = false
+        }
+
+        return succeeded
+    }
+
     func reopenBrowser() {
         if let authorizationURL { NSWorkspace.shared.open(authorizationURL) }
     }

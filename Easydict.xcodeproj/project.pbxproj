@@ -588,6 +588,9 @@
 		B87AC7E36367075BA5D13234 /* Pods_Easydict.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6372B33DFF803C7096A82250 /* Pods_Easydict.framework */; };
 		B8D793EA87784E0B9D82C7FC /* MDictConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9AB6CC6A83844F992CD49D6 /* MDictConfigurationView.swift */; };
 		B95E8E65988E4351BF03462E /* UtilityFunctionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 003F53EF2A8C452998524A99 /* UtilityFunctionsTests.swift */; };
+		A60020260000000000000021 /* QuickTranslateDistribution.swift in Sources */ = {isa = PBXBuildFile; fileRef = A60020260000000000000011 /* QuickTranslateDistribution.swift */; };
+		A60020260000000000000022 /* QuickTranslateUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = A60020260000000000000012 /* QuickTranslateUpdater.swift */; };
+		A60020260000000000000023 /* QuickTranslateUninstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = A60020260000000000000013 /* QuickTranslateUninstaller.swift */; };
 		BFC431E797E945B795B81589 /* AppPathManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FED70C029AC2438A8EBE25F1 /* AppPathManager.swift */; };
 		C09AC0F264D246FC90F9A277 /* AppleServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0652043BE29F4DEC887CAA78 /* AppleServiceTests.swift */; };
 		C0DE13030002000000000001 /* CodexManagedRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE13030001000000000001 /* CodexManagedRuntimeTests.swift */; };
@@ -1448,6 +1451,9 @@
 		F17239571D44D3BCC9D24831 /* CodexManagedProcessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexManagedProcessTests.swift; sourceTree = "<group>"; };
 		FA76B47A0150434485FCBBAD /* MDictReaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDictReaderTests.swift; sourceTree = "<group>"; };
 		FBAB49A71BBA4870A9C4FF0C /* GitHubCopilotModelCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubCopilotModelCache.swift; sourceTree = "<group>"; };
+		A60020260000000000000011 /* QuickTranslateDistribution.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickTranslateDistribution.swift; sourceTree = "<group>"; };
+		A60020260000000000000012 /* QuickTranslateUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickTranslateUpdater.swift; sourceTree = "<group>"; };
+		A60020260000000000000013 /* QuickTranslateUninstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickTranslateUninstaller.swift; sourceTree = "<group>"; };
 		FED70C029AC2438A8EBE25F1 /* AppPathManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPathManager.swift; sourceTree = "<group>"; };
 		60ECE5EBBB5940D5A7462B40 /* QueryModelCancellationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryModelCancellationTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -3785,6 +3791,16 @@
 			path = Volcano;
 			sourceTree = "<group>";
 		};
+		A60020260000000000000001 /* AppMaintenance */ = {
+			isa = PBXGroup;
+			children = (
+				A60020260000000000000011 /* QuickTranslateDistribution.swift */,
+				A60020260000000000000012 /* QuickTranslateUpdater.swift */,
+				A60020260000000000000013 /* QuickTranslateUninstaller.swift */,
+			);
+			path = AppMaintenance;
+			sourceTree = "<group>";
+		};
 		C45DF36C72434BC789260597 /* AppPathManager */ = {
 			isa = PBXGroup;
 			children = (
@@ -3865,6 +3881,7 @@
 		EA9943DD2B534BAE00EE7B97 /* Utility */ = {
 			isa = PBXGroup;
 			children = (
+				A60020260000000000000001 /* AppMaintenance */,
 				C45DF36C72434BC789260597 /* AppPathManager */,
 				4D4D6D6F0000000000000024 /* DarkReader */,
 				0377C0912F13EAFE00302A2C /* Environment */,
@@ -4483,6 +4500,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A60020260000000000000021 /* QuickTranslateDistribution.swift in Sources */,
+				A60020260000000000000022 /* QuickTranslateUpdater.swift in Sources */,
+				A60020260000000000000023 /* QuickTranslateUninstaller.swift in Sources */,
 				BFC431E797E945B795B81589 /* AppPathManager.swift in Sources */,
 				44476FC198C54239B507098E /* AppPathManager+Codex.swift in Sources */,
 				78F5EB4FCA084046AD550B98 /* AppPathManager+Logs.swift in Sources */,
