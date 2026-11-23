@@ -168,10 +168,11 @@ actor CodexManagedAppServer {
         guard prewarmSignedIn != false else { return }
 
         let identifier = UUID()
-        let task = Task { [weak self] in
-            await self?.performPrewarm(identifier: identifier)
+        let task = Task<Void, Never> { [weak self] in
+            guard let self else { return }
+            await self.performPrewarm(identifier: identifier)
         }
-        prewarmTask = (identifier, task)
+        prewarmTask = (identifier: identifier, task: task)
     }
 
     func cancel(_ requestID: UUID) {
