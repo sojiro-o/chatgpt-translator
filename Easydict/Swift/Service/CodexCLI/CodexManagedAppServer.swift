@@ -58,15 +58,21 @@ actor CodexManagedAppServer {
         guard !translation.isCancelled() else { throw CancellationError() }
         try CodexManagedRuntime.validateSelection(model: translation.model, effort: translation.effort)
 
+        let perfTrigger = QTPerfTracker.shared.consumePendingTrigger()
         idleTask?.cancel()
         idleTask = nil
-        let session = try await ensureSession(runtime: translation.runtime)
+        let (session, sessionOrigin) = try await ensureSession(runtime: translation.runtime)
+        idleTask?.cancel()
+        idleTask = nil
         try Task.checkCancellation()
         guard !translation.isCancelled() else { throw CancellationError() }
 
         let state = TranslationState(
             identifier: translation.identifier,
             sessionIdentifier: session.identifier,
+            sessionOrigin: sessionOrigin,
+            doubleCopyToPasteboardMs: perfTrigger.doubleCopyToPasteboardMs,
+            popupRequestedAt: perfTrigger.popupRequestedAt,
             deltaReceived: translation.deltaReceived
         )
         translations[translation.identifier] = state
@@ -121,6 +127,7 @@ actor CodexManagedAppServer {
                 "input": [["type": "text", "text": translation.prompt]],
             ]
             if let effort = translation.effort { turnParameters["effort"] = effort }
+            state.turnStartSentAt = ProcessInfo.processInfo.systemUptime
             let turnResponse = try await request(
                 session: session,
                 method: "turn/start",
@@ -141,11 +148,30 @@ actor CodexManagedAppServer {
             }
             return try await result(for: state)
         } catch {
+            if let managedError = error as? CodexManagedError,
+               managedError == .loginRequired || managedError == .authenticationFailed {
+                prewarmSignedIn = nil
+            }
             if translations[translation.identifier] === state {
                 discard(state, releaseThread: true)
             }
             throw error
         }
+    }
+
+    /// Establishes the App Server session (process launch, initialize, MCP isolation check)
+    /// without sending any user text. Silently ignores missing components, signed-out state,
+    /// active account operations, or any errors.
+    func prewarm() {
+        guard !CodexRequestCoordinator.shared.hasActiveAccountOperation else { return }
+        guard session == nil, prewarmTask == nil else { return }
+        guard prewarmSignedIn != false else { return }
+
+        let identifier = UUID()
+        let task = Task { [weak self] in
+            await self?.performPrewarm(identifier: identifier)
+        }
+        prewarmTask = (identifier, task)
     }
 
     func cancel(_ requestID: UUID) {
@@ -168,6 +194,9 @@ actor CodexManagedAppServer {
     /// Stops the shared process before credentials or managed component identity changes.
     func invalidate() {
         let cachedEphemeral = cachedRuntime?.ephemeralDirectory
+        prewarmTask?.task.cancel()
+        prewarmTask = nil
+        prewarmSignedIn = nil
         runtimeLoad?.task.cancel()
         runtimeLoad = nil
         cachedRuntime = nil
@@ -224,16 +253,28 @@ actor CodexManagedAppServer {
         let continuation: AsyncStream<Data>.Continuation
     }
 
+    private enum SessionOrigin: String {
+        case reused
+        case warming
+        case new
+    }
+
     private final class TranslationState {
         // MARK: Lifecycle
 
         init(
             identifier: UUID,
             sessionIdentifier: UUID,
+            sessionOrigin: SessionOrigin,
+            doubleCopyToPasteboardMs: Int?,
+            popupRequestedAt: TimeInterval?,
             deltaReceived: @escaping @Sendable (String) -> ()
         ) {
             self.identifier = identifier
             self.sessionIdentifier = sessionIdentifier
+            self.sessionOrigin = sessionOrigin
+            self.doubleCopyToPasteboardMs = doubleCopyToPasteboardMs
+            self.popupRequestedAt = popupRequestedAt
             self.deltaReceived = deltaReceived
             self.started = ProcessInfo.processInfo.systemUptime
         }
@@ -242,8 +283,13 @@ actor CodexManagedAppServer {
 
         let identifier: UUID
         let sessionIdentifier: UUID
+        let sessionOrigin: SessionOrigin
+        let doubleCopyToPasteboardMs: Int?
+        let popupRequestedAt: TimeInterval?
         let deltaReceived: @Sendable (String) -> ()
         let started: TimeInterval
+        var turnStartSentAt: TimeInterval?
+        var firstDeltaAt: TimeInterval?
         var threadID: String?
         var turnID: String?
         var streamedText = ""
@@ -258,12 +304,14 @@ actor CodexManagedAppServer {
 
     private static let translationTimeout: TimeInterval = 120
     private static let requestTimeout: TimeInterval = 30
-    private static let idleTimeout: TimeInterval = 300
+    private static let idleTimeout: TimeInterval = 1800
     private static let allowedItemTypes = ["userMessage", "reasoning", "agentMessage"]
 
     private var session: Session?
     private var cachedRuntime: CodexManagedRuntime?
     private var runtimeLoad: (identifier: UUID, task: Task<CodexManagedRuntime, Error>)?
+    private var prewarmTask: (identifier: UUID, task: Task<(), Never>)?
+    private var prewarmSignedIn: Bool?
     private var nextRequestID = 1
     private var pendingResponses: [Int: PendingResponse] = [:]
     private var translations: [UUID: TranslationState] = [:]
@@ -299,16 +347,65 @@ extension CodexManagedAppServer {
         return CodexCLIError.cliError(message: message)
     }
 
-    private func ensureSession(runtime: CodexManagedRuntime) async throws -> Session {
+    private func performPrewarm(identifier: UUID) async {
+        defer {
+            if prewarmTask?.identifier == identifier {
+                prewarmTask = nil
+            }
+        }
+        guard !Task.isCancelled,
+              prewarmTask?.identifier == identifier,
+              !CodexRequestCoordinator.shared.hasActiveAccountOperation,
+              session == nil
+        else { return }
+
+        do {
+            let runtime = try await self.runtime()
+            guard !Task.isCancelled,
+                  prewarmTask?.identifier == identifier,
+                  !CodexRequestCoordinator.shared.hasActiveAccountOperation,
+                  session == nil
+            else { return }
+
+            if prewarmSignedIn != true {
+                let output = try await runtime.command(["login", "status"], process: CodexManagedProcess())
+                guard !Task.isCancelled,
+                      prewarmTask?.identifier == identifier,
+                      !CodexRequestCoordinator.shared.hasActiveAccountOperation
+                else { return }
+
+                let signedIn = try CodexManagedTranslation.isSignedIn(output)
+                prewarmSignedIn = signedIn
+                guard signedIn, session == nil else { return }
+            }
+
+            let started = ProcessInfo.processInfo.systemUptime
+            let (_, origin) = try await ensureSession(runtime: runtime)
+            guard !Task.isCancelled,
+                  !CodexRequestCoordinator.shared.hasActiveAccountOperation
+            else { return }
+
+            scheduleIdleShutdown()
+            if origin == .new {
+                let elapsedMs = max(0, Int((ProcessInfo.processInfo.systemUptime - started) * 1000))
+                logWarn("[QTPerf] app_server_prewarm_ms=\(elapsedMs)")
+            }
+        } catch {
+            // Prewarm is best-effort; silently ignore missing components, signed-out state, or errors.
+        }
+    }
+
+    private func ensureSession(runtime: CodexManagedRuntime) async throws
+        -> (session: Session, origin: SessionOrigin) {
         if let session, runtimeMatches(runtime, session.runtime) {
-            if session.initialized { return session }
+            if session.initialized { return (session, .reused) }
             try await withCheckedThrowingContinuation { continuation in
                 session.readiness.append(continuation)
             }
             guard self.session === session, session.initialized else {
                 throw CodexManagedError.invalidResponse
             }
-            return session
+            return (session, .warming)
         }
         if session != nil { stopSession(error: CancellationError()) }
 
@@ -369,7 +466,7 @@ extension CodexManagedAppServer {
             let readiness = session.readiness
             session.readiness.removeAll()
             readiness.forEach { $0.resume() }
-            return session
+            return (session, .new)
         } catch {
             failSession(session, error: error, terminate: true)
             throw error
@@ -482,6 +579,9 @@ extension CodexManagedAppServer {
         switch method {
         case "item/agentMessage/delta":
             guard state.failure == nil, let delta = params["delta"] as? String else { return }
+            if state.firstDeltaAt == nil {
+                state.firstDeltaAt = ProcessInfo.processInfo.systemUptime
+            }
             state.streamedText += delta
             state.deltaReceived(delta)
         case "item/completed", "item/started":
@@ -547,6 +647,11 @@ extension CodexManagedAppServer {
             fail(state, error: CodexManagedError.invalidResponse, session: session)
             return
         }
+        let completedAt = ProcessInfo.processInfo.systemUptime
+        if state.firstDeltaAt == nil {
+            state.firstDeltaAt = completedAt
+        }
+        prewarmSignedIn = true
         let result = CodexManagedTranslation.Result(
             text: finalText,
             usage: state.usage.map {
@@ -559,6 +664,7 @@ extension CodexManagedAppServer {
                 )
             }
         )
+        logTranslationPerf(state, completedAt: completedAt, usage: result.usage)
         finish(state, result: .success(result), releaseThread: true)
     }
 
@@ -762,6 +868,39 @@ extension CodexManagedAppServer {
         )
     }
 
+    private func logTranslationPerf(
+        _ state: TranslationState,
+        completedAt: TimeInterval,
+        usage: CodexTokenUsage?
+    ) {
+        let pasteboardMs = state.doubleCopyToPasteboardMs.map(String.init) ?? "n/a"
+        let turnStartAt = state.turnStartSentAt ?? state.started
+        let popupToTurnStartMs = state.popupRequestedAt.map {
+            String(max(0, Int((turnStartAt - $0) * 1000)))
+        } ?? "n/a"
+        let turnStartToFirstDeltaMs = state.firstDeltaAt.map {
+            String(max(0, Int(($0 - turnStartAt) * 1000)))
+        } ?? "n/a"
+        let turnStartToCompleteMs = max(0, Int((completedAt - turnStartAt) * 1000))
+        let totalMs = state.popupRequestedAt.map {
+            String(max(0, Int((completedAt - $0) * 1000)))
+        } ?? String(max(0, Int((completedAt - state.started) * 1000)))
+        let inputTokens = usage.map { String($0.inputTokens) } ?? "n/a"
+        let cachedInputTokens = usage.map { String($0.cachedInputTokens) } ?? "n/a"
+        let outputTokens = usage.map { String($0.outputTokens) } ?? "n/a"
+        let reasoningTokens = usage.map { String($0.reasoningOutputTokens) } ?? "n/a"
+
+        logWarn(
+            "[QTPerf] app_server=\(state.sessionOrigin.rawValue) "
+                + "double_copy_to_pasteboard_ms=\(pasteboardMs) "
+                + "popup_to_turn_start_ms=\(popupToTurnStartMs) "
+                + "turn_start_to_first_delta_ms=\(turnStartToFirstDeltaMs) "
+                + "turn_start_to_complete_ms=\(turnStartToCompleteMs) "
+                + "total_ms=\(totalMs) "
+                + "tokens(in=\(inputTokens),cached=\(cachedInputTokens),out=\(outputTokens),reasoning=\(reasoningTokens))"
+        )
+    }
+
     private func elapsedMilliseconds(_ state: TranslationState) -> Int {
         Int((ProcessInfo.processInfo.systemUptime - state.started) * 1000)
     }
@@ -774,4 +913,79 @@ extension CodexManagedAppServer {
             && lhs.ephemeralDirectory == rhs.ephemeralDirectory
             && lhs.catalogURL == rhs.catalogURL
     }
+}
+
+// MARK: - QTPerfTracker
+
+/// Captures numeric-only performance timestamps across the double-copy popup
+/// translation pipeline. Never stores or logs source or translated text.
+@objcMembers
+final class QTPerfTracker: NSObject, @unchecked Sendable {
+    // MARK: Lifecycle
+
+    private override init() {
+        super.init()
+    }
+
+    // MARK: Internal
+
+    struct Snapshot {
+        let doubleCopyToPasteboardMs: Int?
+        let popupRequestedAt: TimeInterval?
+    }
+
+    static let shared = QTPerfTracker()
+
+    /// Records elapsed time from detecting the 2nd Cmd+C to reading the pasteboard.
+    func recordDoubleCopyPasteboard(elapsedMs: Int) {
+        let now = ProcessInfo.processInfo.systemUptime
+        lock.withLock {
+            pendingDoubleCopyToPasteboardMs = elapsedMs
+            pendingDoubleCopyRecordedAt = now
+        }
+        logWarn("[QTPerf] double_copy_to_pasteboard_ms=\(elapsedMs)")
+    }
+
+    /// Records the moment a popup translation display is requested.
+    func recordPopupRequested() {
+        let now = ProcessInfo.processInfo.systemUptime
+        lock.withLock {
+            pendingPopupRequestedAt = now
+        }
+    }
+
+    /// Consumes pending trigger timestamps for the next translation turn.
+    @nonobjc
+    func consumePendingTrigger() -> Snapshot {
+        let now = ProcessInfo.processInfo.systemUptime
+        return lock.withLock {
+            let maxAge: TimeInterval = 10.0
+            let pasteboardMs: Int?
+            if let recordedAt = pendingDoubleCopyRecordedAt, now - recordedAt <= maxAge {
+                pasteboardMs = pendingDoubleCopyToPasteboardMs
+            } else {
+                pasteboardMs = nil
+            }
+            let popupAt: TimeInterval?
+            if let requestedAt = pendingPopupRequestedAt, now - requestedAt <= maxAge {
+                popupAt = requestedAt
+            } else {
+                popupAt = nil
+            }
+            pendingDoubleCopyToPasteboardMs = nil
+            pendingDoubleCopyRecordedAt = nil
+            pendingPopupRequestedAt = nil
+            return Snapshot(
+                doubleCopyToPasteboardMs: pasteboardMs,
+                popupRequestedAt: popupAt
+            )
+        }
+    }
+
+    // MARK: Private
+
+    private let lock = NSLock()
+    private var pendingDoubleCopyToPasteboardMs: Int?
+    private var pendingDoubleCopyRecordedAt: TimeInterval?
+    private var pendingPopupRequestedAt: TimeInterval?
 }

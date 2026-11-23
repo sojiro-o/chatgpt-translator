@@ -605,14 +605,20 @@ final class DoubleCopyMonitor: NSObject {
         if case let .triggered(firstChangeCount) = action {
             pollPasteboardAndTranslate(
                 firstChangeCount: firstChangeCount,
-                secondChangeCount: changeCount
+                secondChangeCount: changeCount,
+                triggeredAt: timestamp
             )
+        } else if detector.pendingState != nil, !isAutoRepeat {
+            Task {
+                await CodexManagedAppServer.shared.prewarm()
+            }
         }
     }
 
     private func pollPasteboardAndTranslate(
         firstChangeCount: Int,
-        secondChangeCount: Int
+        secondChangeCount: Int,
+        triggeredAt: TimeInterval
     ) {
         cancelPendingPasteboardPoll()
         pollGeneration &+= 1
@@ -623,6 +629,7 @@ final class DoubleCopyMonitor: NSObject {
             generation: generation,
             firstChangeCount: firstChangeCount,
             secondChangeCount: secondChangeCount,
+            triggeredAt: triggeredAt,
             deadline: deadline
         )
     }
@@ -631,6 +638,7 @@ final class DoubleCopyMonitor: NSObject {
         generation: UInt,
         firstChangeCount: Int,
         secondChangeCount: Int,
+        triggeredAt: TimeInterval,
         deadline: TimeInterval
     ) {
         let workItem = DispatchWorkItem { [weak self] in
@@ -639,14 +647,14 @@ final class DoubleCopyMonitor: NSObject {
             let currentChangeCount = NSPasteboard.general.changeCount
             if currentChangeCount != secondChangeCount {
                 pendingPollWorkItem = nil
-                processPasteboardIfEligible(changeCount: currentChangeCount)
+                processPasteboardIfEligible(changeCount: currentChangeCount, triggeredAt: triggeredAt)
                 return
             }
 
             if ProcessInfo.processInfo.systemUptime >= deadline {
                 pendingPollWorkItem = nil
                 if currentChangeCount != firstChangeCount {
-                    processPasteboardIfEligible(changeCount: currentChangeCount)
+                    processPasteboardIfEligible(changeCount: currentChangeCount, triggeredAt: triggeredAt)
                 }
                 return
             }
@@ -655,6 +663,7 @@ final class DoubleCopyMonitor: NSObject {
                 generation: generation,
                 firstChangeCount: firstChangeCount,
                 secondChangeCount: secondChangeCount,
+                triggeredAt: triggeredAt,
                 deadline: deadline
             )
         }
@@ -672,7 +681,7 @@ final class DoubleCopyMonitor: NSObject {
         pendingPollWorkItem = nil
     }
 
-    private func processPasteboardIfEligible(changeCount: Int) {
+    private func processPasteboardIfEligible(changeCount: Int, triggeredAt: TimeInterval) {
         guard !PasteboardSelfWriteTracker.shared.isSelfWrite(changeCount: changeCount) else {
             return
         }
@@ -684,6 +693,8 @@ final class DoubleCopyMonitor: NSObject {
             let message = NSLocalizedString("double_copy.text_too_long", comment: "")
             EZToast.showText(message)
         case let .valid(text):
+            let pasteboardMs = max(0, Int((ProcessInfo.processInfo.systemUptime - triggeredAt) * 1000))
+            QTPerfTracker.shared.recordDoubleCopyPasteboard(elapsedMs: pasteboardMs)
             let windowManager = EZWindowManager.shared()
             windowManager.lastPoint = NSEvent.mouseLocation
             windowManager.doubleCopyTranslateText(text)

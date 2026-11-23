@@ -496,6 +496,19 @@ static BOOL ez_frame_equal_with_tolerance(CGRect lhs, CGRect rhs, CGFloat tolera
     // Before starting new query, we should stop the previous query.
     [self.queryModel stopAllService];
 
+    if (self.windowType == EZWindowTypeMini) {
+        // Mini popup starts querying immediately without waiting for closeAllResultView:
+        // reload/height animations. Clear stale visible cells in place when pinned.
+        if ([self allShowingResults].count > 0) {
+            NSArray<EZQueryResult *> *allResults = [self resetAllResults];
+            for (EZQueryResult *result in allResults) {
+                [self updateResultCell:result];
+            }
+        }
+        [self queryCurrentModel];
+        return;
+    }
+
     // Close all resultView before querying new text.
     [self closeAllResultView:^{
         self.inputText = text;
@@ -852,7 +865,14 @@ static BOOL ez_frame_equal_with_tolerance(CGRect lhs, CGRect rhs, CGFloat tolera
     // !!!: Reset all result before new query.
     [self resetAllResults];
 
-    if (self.queryModel.needDetectLanguage) {
+    BOOL shouldDetectLanguage = self.queryModel.needDetectLanguage;
+    if (self.windowType == EZWindowTypeMini &&
+        self.queryModel.hasUserSourceLanguage &&
+        self.queryModel.hasUserTargetLanguage) {
+        shouldDetectLanguage = NO;
+    }
+
+    if (shouldDetectLanguage) {
         [self detectQueryText:^(NSString *_Nonnull language) {
             [self queryAllSerives:self.queryModel];
         }];

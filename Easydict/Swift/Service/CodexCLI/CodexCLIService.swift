@@ -204,6 +204,9 @@ final class CodexCLIService: StreamService {
 
     override var synchronizesModelWithSupportedModels: Bool { false }
 
+    @nonobjc
+    override var streamThrottleInterval: TimeInterval { 0.1 }
+
     override var model: String {
         get { CodexServiceConfiguration(uuid: uuid).model }
         set {

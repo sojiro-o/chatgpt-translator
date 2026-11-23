@@ -81,6 +81,11 @@ final class CodexRequestCoordinator: @unchecked Sendable {
 
     static let shared = CodexRequestCoordinator()
 
+    /// Returns `true` while a login, logout, or account reset operation is active.
+    var hasActiveAccountOperation: Bool {
+        lock.withLock { accountOperation != nil }
+    }
+
     func observe(uuid: String) {
         lock.lock()
         guard observers[uuid] == nil else { lock.unlock(); return }

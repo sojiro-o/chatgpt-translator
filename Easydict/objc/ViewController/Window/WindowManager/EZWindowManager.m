@@ -382,6 +382,10 @@ static EZWindowManager *_instance;
     // Log selected text when querying.
     [self logSelectedTextEvent];
 
+    if (autoQuery && queryText.length > 0) {
+        [[QTPerfTracker shared] recordPopupRequested];
+    }
+
     void (^updateQueryTextAndStartQueryBlock)(BOOL) = ^(BOOL needFocus) {
         // Update input text and detect.
         [queryViewController updateQueryTextAndParagraphStyle:queryText actionType:self.actionType];

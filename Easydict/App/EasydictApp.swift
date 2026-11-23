@@ -134,7 +134,14 @@ struct EasydictApp: App {
     @Default(.selectedMenuBarIcon) private var menuBarIcon
 
     @MainActor
-    private static func performPostLaunchTasks() {}
+    private static func performPostLaunchTasks() {
+        guard !DoubleCopyMonitor.isRunningUnitTests else { return }
+        Task {
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
+            await CodexManagedAppServer.shared.prewarm()
+        }
+    }
 
     /// Persist queued writes synchronously; an asynchronous task may not run before exit.
     @MainActor

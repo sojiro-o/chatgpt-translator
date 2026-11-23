@@ -157,7 +157,8 @@ public class StreamService: QueryService {
                         queryType: self.supportedQueryType(),
                         error: nil,
                         targetResult: activeResult,
-                        targetGeneration: activeGeneration
+                        targetGeneration: activeGeneration,
+                        interval: self.streamThrottleInterval
                     ) { result in
                         if result.error != nil {
                             didYieldError = true
@@ -235,6 +236,12 @@ public class StreamService: QueryService {
 
     var remoteModelFetchRequiresEndpoint: Bool {
         true
+    }
+
+    /// Minimum interval between throttled UI result updates during streaming.
+    @nonobjc
+    var streamThrottleInterval: TimeInterval {
+        0.3
     }
 
     /// Whether model changes should remain synchronized with the supported-model list.
