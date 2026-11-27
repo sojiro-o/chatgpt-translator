@@ -912,6 +912,24 @@ static BOOL EZResultHasAnkiContent(EZQueryResult *result) {
         }];
         lastView = textCopyButton;
 
+        QTAlignment *alignment = result.alignment;
+        if (alignment) {
+            EZSymbolImageButton *alignmentButton = [EZSymbolImageButton buttonWithSybolImageName:@"rectangle.split.2x1"];
+            [self addSubview:alignmentButton];
+            alignmentButton.enabled = YES;
+            alignmentButton.toolTip = NSLocalizedString(@"quick_translate.alignment.show_button.tooltip", nil);
+            alignmentButton.mas_key = @"result_alignmentButton";
+
+            [alignmentButton setClickBlock:^(EZButton *_Nonnull button) {
+                [QTAlignmentPanelController.shared showWithAlignment:alignment];
+            }];
+
+            [alignmentButton mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.left.equalTo(textCopyButton.mas_right).offset(buttonPadding);
+                make.width.height.bottom.equalTo(textCopyButton);
+            }];
+        }
+
         self.bottomViewHeight = audioButtonTopOffset + EZAudioButtonWidthHeight_24 + EZAudioButtonBottomMargin_4;
 
         height += self.bottomViewHeight;

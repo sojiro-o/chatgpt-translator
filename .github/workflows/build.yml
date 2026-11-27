@@ -113,6 +113,8 @@ jobs:
             -skipPackagePluginValidation \
             -skipMacroValidation \
             -only-testing:EasydictTests/DoubleCopyDetectorTests \
+            -only-testing:EasydictTests/QTSourceChunkerTests \
+            -only-testing:EasydictTests/QTAlignmentParserTests \
             $COMMON_SETTINGS \
             > "$LOG_DIR/test.log" 2>&1 || {
               echo "::group::Errors and failures"

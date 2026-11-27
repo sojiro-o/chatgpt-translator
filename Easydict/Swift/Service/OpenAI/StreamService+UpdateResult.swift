@@ -120,6 +120,8 @@ extension StreamService {
             finalText = finalText.filterThinkTagContent().trim()
         }
 
+        finalText = transformStreamResultText(finalText)
+
         // When this call is the one that marks the stream as finished (markStreamFinished: true),
         // apply the same empty-result check that the already-finished guard (above) applies.
         // Without this, a stream that completes with no output and no error would surface as
@@ -127,6 +129,9 @@ extension StreamService {
         var completionError: Error? = error
         if markStreamFinished, finalText.isEmpty, error == nil {
             completionError = QueryError(type: .noResult)
+        }
+        if completionError != nil {
+            resultToUpdate.alignment = nil
         }
 
         let updateCompletion = {

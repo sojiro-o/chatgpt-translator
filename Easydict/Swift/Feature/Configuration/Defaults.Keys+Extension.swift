@@ -222,6 +222,11 @@ extension Defaults.Keys {
         default: true
     )
 
+    static let quickTranslateAlignmentEnabled = Key<Bool>(
+        "EZConfiguration_kQuickTranslateAlignmentEnabled",
+        default: true
+    )
+
     static let autoSelectAllTextFieldText = Key<Bool>(
         "EZConfiguration_kAutoSelectAllTextFieldText",
         default: true

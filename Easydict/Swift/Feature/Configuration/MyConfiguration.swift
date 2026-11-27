@@ -104,6 +104,7 @@ class MyConfiguration: NSObject {
     @DefaultsWrapper(.hideMenuBarIcon) var hideMenuBarIcon: Bool
     @DefaultsWrapper(.fontSizeOptionIndex) var fontSizeIndex: UInt
     @DefaultsWrapper(.enableMarkdownRendering) var enableMarkdownRendering: Bool
+    @DefaultsWrapper(.quickTranslateAlignmentEnabled) var quickTranslateAlignmentEnabled: Bool
 
     // Advanced Tab
     @DefaultsWrapper(.enableBetaFeature) private(set) var beta: Bool

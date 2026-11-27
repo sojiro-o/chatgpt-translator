@@ -41,6 +41,15 @@ struct GeneralTab: View {
             }
 
             Section {
+                Toggle(isOn: $quickTranslateAlignmentEnabled) {
+                    Text("setting.general.display.quick_translate_alignment_enabled")
+                }
+            } footer: {
+                Text("setting.general.display.quick_translate_alignment_enabled.description")
+                    .font(.footnote)
+            }
+
+            Section {
                 Picker("setting.general.language", selection: $languageState.language) {
                     ForEach(LanguageState.LanguageType.allCases, id: \.rawValue) { language in
                         Text(language.name)
@@ -116,6 +125,7 @@ struct GeneralTab: View {
     @Default(.selectedMenuBarIcon) private var selectedMenuBarIcon
     @Default(.fontSizeOptionIndex) private var fontSizeOptionIndex
     @Default(.enableMarkdownRendering) private var enableMarkdownRendering
+    @Default(.quickTranslateAlignmentEnabled) private var quickTranslateAlignmentEnabled
 }
 
 #Preview {

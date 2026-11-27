@@ -220,6 +220,9 @@ public class QueryResult: NSObject {
     /// new query so a fresh result tracks the global setting again.
     var markdownRenderingOverride: Bool?
 
+    /// Phrase-level alignment between source text and translated text, kept in memory only.
+    var alignment: QTAlignment?
+
     var translatedResults: [String]? {
         get {
             translatedResultsLock.lock()
@@ -280,7 +283,7 @@ public class QueryResult: NSObject {
 
     /// Returns property names that should be ignored by MJExtension.
     class func mj_ignoredPropertyNames() -> [String] {
-        []
+        ["alignment"]
     }
 
     /// Flips the Markdown rendering decision for this result, overriding the
@@ -320,6 +323,7 @@ public class QueryResult: NSObject {
         webViewManager.reset()
         showReplaceButton = false
         markdownRenderingOverride = nil
+        alignment = nil
     }
 
     /// Converts translated results to Traditional Chinese.

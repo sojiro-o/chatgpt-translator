@@ -211,6 +211,12 @@ public class StreamService: QueryService {
 
     var hideThinkTagContent: Bool = true
 
+    /// Transforms accumulated stream text before storing it in `result.translatedResults`.
+    /// Subclasses can override this to strip service-specific markers.
+    func transformStreamResultText(_ text: String) -> String {
+        text
+    }
+
     /// The optional OpenAI-compatible reasoning mode for stream services.
     /// Subclasses can override this when the selected provider supports the parameter.
     @nonobjc
