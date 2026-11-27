@@ -145,6 +145,7 @@ final class CodexCLIService: StreamService {
                         prompt: combinedPrompt,
                         model: configuration.model,
                         effort: configuration.effort.cliValue,
+                        fastMode: configuration.fastMode,
                         runtime: runtime
                     ) { chunk in
                         do {
@@ -276,6 +277,10 @@ final class CodexCLIService: StreamService {
         CodexServiceConfiguration.effortKey(uuid: uuid, mode: .managed)
     }
 
+    var managedFastModeKey: Defaults.Key<Bool> {
+        CodexServiceConfiguration.fastModeKey(uuid: uuid)
+    }
+
     /// Keeps fixed subscriptions: managed model/name changes refresh UI without
     /// automatically sending the current text.
     func setupCodexSubscribers() {
@@ -289,6 +294,12 @@ final class CodexCLIService: StreamService {
             .sink { [weak self] _ in self?.notifyServiceConfigurationChanged() }
             .store(in: &cancellables)
         Defaults.publisher(managedModelKey, options: [])
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.notifyServiceConfigurationChanged()
+            }
+            .store(in: &cancellables)
+        Defaults.publisher(managedFastModeKey, options: [])
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.notifyServiceConfigurationChanged()

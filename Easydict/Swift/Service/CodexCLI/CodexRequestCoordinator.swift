@@ -28,6 +28,7 @@ struct CodexServiceConfiguration: Equatable {
             self.model = storedModel
         }
         self.effort = Defaults[Self.effortKey(uuid: uuid, mode: mode)]
+        self.fastMode = mode == .managed ? Defaults[Self.fastModeKey(uuid: uuid)] : false
     }
 
     // MARK: Internal
@@ -36,6 +37,7 @@ struct CodexServiceConfiguration: Equatable {
     let mode: CodexAccessMode
     let model: String
     let effort: CodexReasoningEffort
+    let fastMode: Bool
 
     static func reasoningEfforts(mode: CodexAccessMode, model: String) -> [CodexReasoningEffort] {
         switch mode {
@@ -61,6 +63,15 @@ struct CodexServiceConfiguration: Equatable {
             serviceType: .codexCLI,
             id: uuid,
             defaultValue: mode == .managed ? .low : .default
+        )
+    }
+
+    static func fastModeKey(uuid: String) -> Defaults.Key<Bool> {
+        serivceConfigurationKey(
+            .codexManagedFastMode,
+            serviceType: .codexCLI,
+            id: uuid,
+            defaultValue: false
         )
     }
 }
@@ -118,6 +129,12 @@ final class CodexRequestCoordinator: @unchecked Sendable {
                 }
                 .store(in: &subscriptions)
         }
+        Defaults.publisher(CodexServiceConfiguration.fastModeKey(uuid: uuid), options: [])
+            .sink { [weak self] _ in
+                self?.invalidate(uuid: uuid, mode: .managed)
+                Task { @MainActor in CodexManagedAccount.shared.configurationChanged(origin: uuid) }
+            }
+            .store(in: &subscriptions)
         lock.withLock { observers[uuid] = subscriptions }
     }
 

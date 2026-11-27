@@ -39,4 +39,51 @@ struct CodexManagedRuntimeTests {
             }
         }
     }
+
+    @Test("modern runtime trims agent prompt sections and supports optional priority service tier")
+    func modernRuntimeTrimsAgentPromptSectionsAndSupportsFastMode() async throws {
+        try await withAccountFixture(release: .modern) { fixture in
+            let runtime = fixture.runtime()
+            let defaultArgs = try runtime.translationArguments(
+                model: runtime.release.defaultModel,
+                effort: "low"
+            )
+            let fastArgs = try runtime.translationArguments(
+                model: runtime.release.defaultModel,
+                effort: "low",
+                fastMode: true
+            )
+            let appServerArgs = runtime.appServerArguments()
+            let expectedInstructions = "instructions=\(CodexManagedRuntime.quoted(CodexManagedRuntime.translationInstructions))"
+            let legacyDeveloperInstructions = "developer_instructions=\(CodexManagedRuntime.quoted(CodexManagedRuntime.translationInstructions))"
+
+            for arguments in [defaultArgs, appServerArgs] {
+                #expect(arguments.contains(expectedInstructions))
+                #expect(!arguments.contains(legacyDeveloperInstructions))
+                #expect(arguments.contains("include_permissions_instructions=false"))
+                #expect(arguments.contains("include_environment_context=false"))
+                #expect(arguments.contains("include_collaboration_mode_instructions=false"))
+                #expect(arguments.contains("include_apps_instructions=false"))
+                #expect(arguments.contains("personality"))
+                #expect(arguments.contains("skill_search"))
+            }
+            #expect(!defaultArgs.contains("service_tier=\"priority\""))
+            #expect(fastArgs.contains("service_tier=\"priority\""))
+        }
+
+        try await withAccountFixture(release: .legacy) { fixture in
+            let runtime = fixture.runtime()
+            let legacyArgs = try runtime.translationArguments(
+                model: runtime.release.defaultModel,
+                effort: "low",
+                fastMode: true
+            )
+            let legacyDeveloperInstructions = "developer_instructions=\(CodexManagedRuntime.quoted(CodexManagedRuntime.translationInstructions))"
+
+            #expect(legacyArgs.contains(legacyDeveloperInstructions))
+            #expect(!legacyArgs.contains("include_permissions_instructions=false"))
+            #expect(!legacyArgs.contains("include_environment_context=false"))
+            #expect(!legacyArgs.contains("service_tier=\"priority\""))
+        }
+    }
 }

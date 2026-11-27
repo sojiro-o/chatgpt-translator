@@ -22,6 +22,7 @@ struct CodexCLIServiceConfigurationView: View {
         self.service = service
         self._managedModel = .init(service.managedModelKey)
         self._managedEffort = .init(service.managedReasoningEffortKey)
+        self._managedFastMode = .init(service.managedFastModeKey)
         CodexRequestCoordinator.shared.observe(uuid: service.uuid)
     }
 
@@ -61,6 +62,10 @@ struct CodexCLIServiceConfigurationView: View {
                     }
                 }
                 .disabled(!isManagedModelSupported)
+                Toggle(
+                    "service.configuration.codex_cli.fast_mode.title",
+                    isOn: $managedFastMode
+                )
             }
         }
         StreamConfigurationView(
@@ -83,6 +88,7 @@ struct CodexCLIServiceConfigurationView: View {
     private let service: CodexCLIService
     @Default private var managedModel: String
     @Default private var managedEffort: CodexReasoningEffort
+    @Default private var managedFastMode: Bool
 
     private var isManagedModelSupported: Bool {
         CodexManagedRuntime.bundledModelNames.contains(managedModel)

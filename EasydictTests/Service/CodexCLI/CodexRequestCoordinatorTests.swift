@@ -63,6 +63,59 @@ struct CodexRequestCoordinatorTests {
         #expect(coordinator.isCurrent(otherManagedToken))
     }
 
+    @Test("fast mode invalidation only cancels matching managed UUID")
+    func fastModeInvalidationIsScopedToManagedUUID() async throws {
+        let coordinator = CodexRequestCoordinator()
+        let managedUUID = UUID().uuidString
+        let localUUID = UUID().uuidString
+        let otherManagedUUID = UUID().uuidString
+        installConfiguration(uuid: managedUUID, mode: .managed, model: "managed-first")
+        installConfiguration(uuid: localUUID, mode: .localCLI, model: "local")
+        installConfiguration(uuid: otherManagedUUID, mode: .managed, model: "managed-second")
+        defer {
+            restoreConfiguration(uuid: managedUUID)
+            restoreConfiguration(uuid: localUUID)
+            restoreConfiguration(uuid: otherManagedUUID)
+        }
+
+        coordinator.observe(uuid: managedUUID)
+        coordinator.observe(uuid: localUUID)
+        let managedToken = UUID()
+        let localToken = UUID()
+        let otherManagedToken = UUID()
+        let managedCancel = InvocationCounter()
+        let localCancel = InvocationCounter()
+        let otherManagedCancel = InvocationCounter()
+        try coordinator.register(
+            token: managedToken,
+            configuration: CodexServiceConfiguration(uuid: managedUUID),
+            cancel: managedCancel.increment
+        )
+        try coordinator.register(
+            token: localToken,
+            configuration: CodexServiceConfiguration(uuid: localUUID),
+            cancel: localCancel.increment
+        )
+        try coordinator.register(
+            token: otherManagedToken,
+            configuration: CodexServiceConfiguration(uuid: otherManagedUUID),
+            cancel: otherManagedCancel.increment
+        )
+
+        Defaults[CodexServiceConfiguration.fastModeKey(uuid: managedUUID)] = true
+        Defaults[CodexServiceConfiguration.fastModeKey(uuid: localUUID)] = true
+        await Task.yield()
+
+        #expect(managedCancel.count == 1)
+        #expect(localCancel.isEmpty)
+        #expect(otherManagedCancel.isEmpty)
+        #expect(!coordinator.isCurrent(managedToken))
+        #expect(coordinator.isCurrent(localToken))
+        #expect(coordinator.isCurrent(otherManagedToken))
+        #expect(CodexServiceConfiguration(uuid: managedUUID).fastMode == true)
+        #expect(CodexServiceConfiguration(uuid: localUUID).fastMode == false)
+    }
+
     @Test(
         "account transitions cancel active managed work but retain local CLI work",
         arguments: CodexAccountOperation.allCases
@@ -230,12 +283,14 @@ private func installConfiguration(uuid: String, mode: CodexAccessMode, model: St
     Defaults[CodexAccessMode.key(uuid: uuid)] = mode
     Defaults[CodexServiceConfiguration.modelKey(uuid: uuid, mode: mode)] = model
     Defaults[CodexServiceConfiguration.effortKey(uuid: uuid, mode: mode)] = .default
+    Defaults[CodexServiceConfiguration.fastModeKey(uuid: uuid)] = false
 }
 
 private func restoreConfiguration(uuid: String) {
     Defaults[CodexAccessMode.key(uuid: uuid)] = .managed
     Defaults[CodexServiceConfiguration.modelKey(uuid: uuid, mode: .managed)] = CodexManagedRuntime.defaultModel
     Defaults[CodexServiceConfiguration.effortKey(uuid: uuid, mode: .managed)] = .default
+    Defaults[CodexServiceConfiguration.fastModeKey(uuid: uuid)] = false
     Defaults[CodexServiceConfiguration.modelKey(uuid: uuid, mode: .localCLI)] = ""
     Defaults[CodexServiceConfiguration.effortKey(uuid: uuid, mode: .localCLI)] = .default
 }

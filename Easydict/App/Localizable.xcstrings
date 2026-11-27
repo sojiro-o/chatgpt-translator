@@ -10375,6 +10375,22 @@
         }
       }
     },
+    "service.configuration.codex_cli.fast_mode.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fast mode (faster responses, uses more ChatGPT quota)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高速モード（応答が速くなる代わりに、ChatGPT の利用枠の消費が増えます）"
+          }
+        }
+      }
+    },
     "service.configuration.codex_cli.model.placeholder" : {
       "localizations" : {
         "en" : {
