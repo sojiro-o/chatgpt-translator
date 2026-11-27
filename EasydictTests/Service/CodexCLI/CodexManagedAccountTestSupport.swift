@@ -287,7 +287,8 @@ func resetManagedConfiguration(uuid: String) {
     Defaults.reset(
         CodexAccessMode.key(uuid: uuid),
         CodexServiceConfiguration.modelKey(uuid: uuid, mode: .managed),
-        CodexServiceConfiguration.effortKey(uuid: uuid, mode: .managed)
+        CodexServiceConfiguration.effortKey(uuid: uuid, mode: .managed),
+        CodexServiceConfiguration.fastModeKey(uuid: uuid)
     )
 }
 

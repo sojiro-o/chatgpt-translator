@@ -168,7 +168,7 @@ struct CodexManagedRuntime {
         )
     }
 
-    func translationArguments(model: String, effort: String?) throws -> [String] {
+    func translationArguments(model: String, effort: String?, fastMode: Bool = false) throws -> [String] {
         let model = model.trimmingCharacters(in: .whitespacesAndNewlines)
         let catalog = try CodexModelCatalog.load(at: catalogURL)
         try catalog.validate(model: model, effort: effort)
@@ -190,6 +190,9 @@ struct CodexManagedRuntime {
         ]
         arguments += translationConfigurationArguments(includeDeveloperInstructions: true)
         if let effort { arguments += ["-c", "model_reasoning_effort=\(Self.quoted(effort))"] }
+        if fastMode, release == .modern {
+            arguments += ["-c", "service_tier=\(Self.quoted("priority"))"]
+        }
         // Authentication overrides are appended by command(), before this stdin marker.
         return arguments
     }
@@ -248,7 +251,13 @@ struct CodexManagedRuntime {
             "analytics.enabled": "false",
             "feedback.enabled": "false",
         ]
-        if includeDeveloperInstructions {
+        if release == .modern {
+            configuration["instructions"] = Self.quoted(Self.translationInstructions)
+            configuration["include_apps_instructions"] = "false"
+            configuration["include_collaboration_mode_instructions"] = "false"
+            configuration["include_environment_context"] = "false"
+            configuration["include_permissions_instructions"] = "false"
+        } else if includeDeveloperInstructions {
             configuration["developer_instructions"] = Self.quoted(Self.translationInstructions)
         }
         var arguments: [String] = []
@@ -257,7 +266,10 @@ struct CodexManagedRuntime {
         }
         for feature in Self.disabledFeatures { arguments += ["--disable", feature] }
         if release == .modern {
-            for feature in ["view_image", "token_budget", "current_time_reminder", "sleep_tool", "deferred_executor"] {
+            for feature in [
+                "view_image", "token_budget", "current_time_reminder", "sleep_tool",
+                "deferred_executor", "personality", "skill_search",
+            ] {
                 arguments += ["--disable", feature]
             }
             arguments += [

@@ -106,10 +106,15 @@ final class CodexManagedTranslation: @unchecked Sendable {
         prompt: String,
         model: String,
         effort: String?,
+        fastMode: Bool = false,
         runtime: CodexManagedRuntime
     ) async throws
         -> Result {
-        let arguments = try runtime.translationArguments(model: model, effort: effort)
+        let arguments = try runtime.translationArguments(
+            model: model,
+            effort: effort,
+            fastMode: fastMode
+        )
         let status = try await runtime.command(["login", "status"], process: nextProcess())
         guard try Self.isSignedIn(status) else { throw CodexManagedError.loginRequired }
         let started = Date()
@@ -127,6 +132,7 @@ final class CodexManagedTranslation: @unchecked Sendable {
         prompt: String,
         model: String,
         effort: String?,
+        fastMode: Bool = false,
         runtime: CodexManagedRuntime,
         deltaReceived: @escaping @Sendable (String) -> ()
     ) async throws
@@ -145,6 +151,7 @@ final class CodexManagedTranslation: @unchecked Sendable {
                         prompt: prompt,
                         model: model,
                         effort: effort,
+                        fastMode: fastMode,
                         runtime: runtime,
                         isCancelled: { [weak self] in self?.isCancelled ?? true },
                         deltaReceived: deltaReceived

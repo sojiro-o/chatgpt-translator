@@ -484,7 +484,9 @@ final class CodexManagedAccount: ObservableObject {
         let result = try await request.run(
             prompt: "Translate the English greeting Hello into Japanese. Return only the translation.",
             model: configuration?.model ?? runtime.release.defaultModel,
-            effort: (configuration?.effort ?? .low).cliValue, runtime: runtime
+            effort: (configuration?.effort ?? .low).cliValue,
+            fastMode: configuration?.fastMode ?? false,
+            runtime: runtime
         )
         try check(generation)
         if let configuration,

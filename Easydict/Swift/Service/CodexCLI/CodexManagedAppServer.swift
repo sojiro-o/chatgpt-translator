@@ -20,6 +20,7 @@ actor CodexManagedAppServer {
         let prompt: String
         let model: String
         let effort: String?
+        let fastMode: Bool
         let runtime: CodexManagedRuntime
         let isCancelled: @Sendable () -> Bool
         let deltaReceived: @Sendable (String) -> ()
@@ -104,7 +105,11 @@ actor CodexManagedAppServer {
             let response = try await request(
                 session: session,
                 method: "thread/start",
-                params: threadParameters(model: translation.model, runtime: translation.runtime),
+                params: threadParameters(
+                    model: translation.model,
+                    fastMode: translation.fastMode,
+                    runtime: translation.runtime
+                ),
                 translationIdentifier: translation.identifier
             )
             guard translations[translation.identifier] === state,
@@ -838,17 +843,30 @@ extension CodexManagedAppServer {
         }
     }
 
-    private func threadParameters(model: String, runtime: CodexManagedRuntime) -> [String: Any] {
-        [
+    private func threadParameters(
+        model: String,
+        fastMode: Bool,
+        runtime: CodexManagedRuntime
+    )
+        -> [String: Any] {
+        var parameters: [String: Any] = [
             "model": model,
             "modelProvider": Self.providerID,
             "cwd": runtime.workingDirectory.path,
             "approvalPolicy": "never",
             "sandbox": "read-only",
-            "developerInstructions": CodexManagedRuntime.translationInstructions,
             "ephemeral": true,
             "serviceName": "quicktranslate",
         ]
+        if runtime.release == .modern {
+            parameters["baseInstructions"] = CodexManagedRuntime.translationInstructions
+            if fastMode {
+                parameters["serviceTier"] = "priority"
+            }
+        } else {
+            parameters["developerInstructions"] = CodexManagedRuntime.translationInstructions
+        }
+        return parameters
     }
 
     private func validate(item: [String: Any]) -> Bool {
