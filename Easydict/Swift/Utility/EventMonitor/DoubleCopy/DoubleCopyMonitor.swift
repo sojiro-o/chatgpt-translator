@@ -695,6 +695,10 @@ final class DoubleCopyMonitor: NSObject {
         case let .valid(text):
             let pasteboardMs = max(0, Int((ProcessInfo.processInfo.systemUptime - triggeredAt) * 1000))
             QTPerfTracker.shared.recordDoubleCopyPasteboard(elapsedMs: pasteboardMs)
+            if Defaults[.doubleCopyOpensChatGPTWeb] {
+                ChatGPTWebPanelController.shared.show(sourceText: text)
+                return
+            }
             let windowManager = EZWindowManager.shared()
             windowManager.lastPoint = NSEvent.mouseLocation
             windowManager.doubleCopyTranslateText(text)

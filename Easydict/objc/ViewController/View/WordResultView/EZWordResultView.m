@@ -912,9 +912,11 @@ static BOOL EZResultHasAnkiContent(EZQueryResult *result) {
         }];
         lastView = textCopyButton;
 
+        NSView *lastMiniButton = textCopyButton;
         QTAlignment *alignment = result.alignment;
         if (alignment) {
             EZSymbolImageButton *alignmentButton = [EZSymbolImageButton buttonWithSybolImageName:@"rectangle.split.2x1"];
+            lastMiniButton = alignmentButton;
             [self addSubview:alignmentButton];
             alignmentButton.enabled = YES;
             alignmentButton.toolTip = NSLocalizedString(@"quick_translate.alignment.show_button.tooltip", nil);
@@ -926,6 +928,25 @@ static BOOL EZResultHasAnkiContent(EZQueryResult *result) {
 
             [alignmentButton mas_makeConstraints:^(MASConstraintMaker *make) {
                 make.left.equalTo(textCopyButton.mas_right).offset(buttonPadding);
+                make.width.height.bottom.equalTo(textCopyButton);
+            }];
+        }
+
+        NSString *chatGPTSourceText = result.queryText;
+        if (chatGPTSourceText.length > 0) {
+            EZSymbolImageButton *chatGPTButton = [EZSymbolImageButton buttonWithSybolImageName:@"bubble.left.and.bubble.right"];
+            [self addSubview:chatGPTButton];
+            chatGPTButton.enabled = YES;
+            chatGPTButton.toolTip = NSLocalizedString(@"quick_translate.chatgpt_web.continue_button.tooltip", nil);
+            chatGPTButton.mas_key = @"result_chatGPTWebButton";
+
+            [chatGPTButton setClickBlock:^(EZButton *_Nonnull button) {
+                [ChatGPTWebPanelController.shared showWithSourceText:chatGPTSourceText];
+            }];
+
+            NSView *anchorButton = lastMiniButton;
+            [chatGPTButton mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.left.equalTo(anchorButton.mas_right).offset(buttonPadding);
                 make.width.height.bottom.equalTo(textCopyButton);
             }];
         }

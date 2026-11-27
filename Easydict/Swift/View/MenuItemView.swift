@@ -26,6 +26,8 @@ struct MenuItemView: View {
             Divider()
 
             pasteboardTranslateItem.keyboardShortcut(.pasteboardTranslate)
+            openChatGPTWebItem
+            doubleCopyChatGPTWebToggleItem
 
             Divider()
 
@@ -48,12 +50,25 @@ struct MenuItemView: View {
     @State private var currentVersion =
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
 
+    @Default(.doubleCopyOpensChatGPTWeb) private var doubleCopyOpensChatGPTWeb
+
     private var versionString: String {
         "QuickTranslate \(currentVersion)"
     }
 
     @ViewBuilder private var pasteboardTranslateItem: some View {
         menuItem(for: .pasteboardTranslate)
+    }
+
+    @ViewBuilder private var openChatGPTWebItem: some View {
+        Button("menu.open_chatgpt_web") {
+            logInfo("Open ChatGPT Web Window")
+            ChatGPTWebPanelController.shared.showEmptyChat()
+        }
+    }
+
+    @ViewBuilder private var doubleCopyChatGPTWebToggleItem: some View {
+        Toggle("menu.double_copy_open_chatgpt_web", isOn: $doubleCopyOpensChatGPTWeb)
     }
 
     // MARK: - Other Items

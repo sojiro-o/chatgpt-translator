@@ -105,6 +105,9 @@ class MyConfiguration: NSObject {
     @DefaultsWrapper(.fontSizeOptionIndex) var fontSizeIndex: UInt
     @DefaultsWrapper(.enableMarkdownRendering) var enableMarkdownRendering: Bool
     @DefaultsWrapper(.quickTranslateAlignmentEnabled) var quickTranslateAlignmentEnabled: Bool
+    @DefaultsWrapper(.doubleCopyOpensChatGPTWeb) var doubleCopyOpensChatGPTWeb: Bool
+    @DefaultsWrapper(.chatGPTWebTemporaryChat) var chatGPTWebTemporaryChat: Bool
+    @DefaultsWrapper(.chatGPTWebCompactDisplay) var chatGPTWebCompactDisplay: Bool
 
     // Advanced Tab
     @DefaultsWrapper(.enableBetaFeature) private(set) var beta: Bool

@@ -58,6 +58,9 @@ final class QuickTranslateUninstaller {
         // 4. Disable launch at login.
         LaunchAtLogin.isEnabled = false
 
+        // Remove the ChatGPT window's website data (login cookies and caches).
+        await ChatGPTWebPanelController.shared.removeDataStoreForUninstall()
+
         // 5. Move the app bundle to the Trash.
         let appURL = Bundle.main.bundleURL
         let trashedApp: Bool

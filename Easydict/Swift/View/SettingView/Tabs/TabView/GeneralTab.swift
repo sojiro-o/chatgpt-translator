@@ -50,6 +50,24 @@ struct GeneralTab: View {
             }
 
             Section {
+                Picker(
+                    "setting.general.chatgpt_web.double_copy_target",
+                    selection: $doubleCopyOpensChatGPTWeb
+                ) {
+                    Text("setting.general.chatgpt_web.double_copy_target.popup")
+                        .tag(false)
+                    Text("setting.general.chatgpt_web.double_copy_target.chatgpt_web")
+                        .tag(true)
+                }
+                Toggle(isOn: $chatGPTWebTemporaryChat) {
+                    Text("setting.general.chatgpt_web.temporary_chat")
+                }
+                Toggle(isOn: $chatGPTWebCompactDisplay) {
+                    Text("setting.general.chatgpt_web.compact_display")
+                }
+            }
+
+            Section {
                 Picker("setting.general.language", selection: $languageState.language) {
                     ForEach(LanguageState.LanguageType.allCases, id: \.rawValue) { language in
                         Text(language.name)
@@ -126,6 +144,9 @@ struct GeneralTab: View {
     @Default(.fontSizeOptionIndex) private var fontSizeOptionIndex
     @Default(.enableMarkdownRendering) private var enableMarkdownRendering
     @Default(.quickTranslateAlignmentEnabled) private var quickTranslateAlignmentEnabled
+    @Default(.doubleCopyOpensChatGPTWeb) private var doubleCopyOpensChatGPTWeb
+    @Default(.chatGPTWebTemporaryChat) private var chatGPTWebTemporaryChat
+    @Default(.chatGPTWebCompactDisplay) private var chatGPTWebCompactDisplay
 }
 
 #Preview {

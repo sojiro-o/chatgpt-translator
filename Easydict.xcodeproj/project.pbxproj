@@ -593,6 +593,7 @@
 		A60020260000000000000023 /* QuickTranslateUninstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = A60020260000000000000013 /* QuickTranslateUninstaller.swift */; };
 		A90920261127000000000021 /* QTSourceChunker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90920261127000000000011 /* QTSourceChunker.swift */; };
 		A90920261127000000000022 /* QTAlignmentPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90920261127000000000012 /* QTAlignmentPanelController.swift */; };
+		B11120261127000000000021 /* ChatGPTWebPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11120261127000000000011 /* ChatGPTWebPanelController.swift */; };
 		A90920261127000000000023 /* QTSourceChunkerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90920261127000000000013 /* QTSourceChunkerTests.swift */; };
 		A90920261127000000000024 /* QTAlignmentParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90920261127000000000014 /* QTAlignmentParserTests.swift */; };
 		A10020261127000000000021 /* AppleIntelligenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10020261127000000000011 /* AppleIntelligenceService.swift */; };
@@ -1461,6 +1462,7 @@
 		A60020260000000000000013 /* QuickTranslateUninstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickTranslateUninstaller.swift; sourceTree = "<group>"; };
 		A90920261127000000000011 /* QTSourceChunker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QTSourceChunker.swift; sourceTree = "<group>"; };
 		A90920261127000000000012 /* QTAlignmentPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QTAlignmentPanelController.swift; sourceTree = "<group>"; };
+		B11120261127000000000011 /* ChatGPTWebPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatGPTWebPanelController.swift; sourceTree = "<group>"; };
 		A90920261127000000000013 /* QTSourceChunkerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QTSourceChunkerTests.swift; sourceTree = "<group>"; };
 		A90920261127000000000014 /* QTAlignmentParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QTAlignmentParserTests.swift; sourceTree = "<group>"; };
 		A10020261127000000000011 /* AppleIntelligenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleIntelligenceService.swift; sourceTree = "<group>"; };
@@ -1531,6 +1533,14 @@
 				02DEDC042026043000000004 /* MarkdownToggleButton.swift */,
 			);
 			path = Markdown;
+			sourceTree = "<group>";
+		};
+		B11120261127000000000001 /* ChatGPTWeb */ = {
+			isa = PBXGroup;
+			children = (
+				B11120261127000000000011 /* ChatGPTWebPanelController.swift */,
+			);
+			path = ChatGPTWeb;
 			sourceTree = "<group>";
 		};
 		A90920261127000000000001 /* Alignment */ = {
@@ -3646,6 +3656,7 @@
 				6A8C988B2BAC88A600DB835A /* Localization */,
 				02DEDC042026043000000001 /* Markdown */,
 				A90920261127000000000001 /* Alignment */,
+				B11120261127000000000001 /* ChatGPTWeb */,
 				967712EC2B5B941600105E0F /* Shortcut */,
 			);
 			path = Feature;
@@ -4538,6 +4549,7 @@
 				A60020260000000000000023 /* QuickTranslateUninstaller.swift in Sources */,
 				A90920261127000000000021 /* QTSourceChunker.swift in Sources */,
 				A90920261127000000000022 /* QTAlignmentPanelController.swift in Sources */,
+				B11120261127000000000021 /* ChatGPTWebPanelController.swift in Sources */,
 				A10020261127000000000021 /* AppleIntelligenceService.swift in Sources */,
 				BFC431E797E945B795B81589 /* AppPathManager.swift in Sources */,
 				44476FC198C54239B507098E /* AppPathManager+Codex.swift in Sources */,

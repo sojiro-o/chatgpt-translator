@@ -227,6 +227,27 @@ extension Defaults.Keys {
         default: true
     )
 
+    static let doubleCopyOpensChatGPTWeb = Key<Bool>(
+        "EZConfiguration_kDoubleCopyOpensChatGPTWeb",
+        default: false
+    )
+
+    static let chatGPTWebTemporaryChat = Key<Bool>(
+        "EZConfiguration_kChatGPTWebTemporaryChat",
+        default: true
+    )
+
+    static let chatGPTWebCompactDisplay = Key<Bool>(
+        "EZConfiguration_kChatGPTWebCompactDisplay",
+        default: true
+    )
+
+    /// Last ChatGPT window frame as `NSStringFromRect` text; empty until first saved.
+    static let chatGPTWebWindowFrame = Key<String>(
+        "EZConfiguration_kChatGPTWebWindowFrame",
+        default: ""
+    )
+
     static let autoSelectAllTextFieldText = Key<Bool>(
         "EZConfiguration_kAutoSelectAllTextFieldText",
         default: true
