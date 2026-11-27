@@ -595,6 +595,7 @@
 		A90920261127000000000022 /* QTAlignmentPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90920261127000000000012 /* QTAlignmentPanelController.swift */; };
 		A90920261127000000000023 /* QTSourceChunkerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90920261127000000000013 /* QTSourceChunkerTests.swift */; };
 		A90920261127000000000024 /* QTAlignmentParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90920261127000000000014 /* QTAlignmentParserTests.swift */; };
+		A10020261127000000000021 /* AppleIntelligenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10020261127000000000011 /* AppleIntelligenceService.swift */; };
 		BFC431E797E945B795B81589 /* AppPathManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FED70C029AC2438A8EBE25F1 /* AppPathManager.swift */; };
 		C09AC0F264D246FC90F9A277 /* AppleServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0652043BE29F4DEC887CAA78 /* AppleServiceTests.swift */; };
 		C0DE13030002000000000001 /* CodexManagedRuntimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DE13030001000000000001 /* CodexManagedRuntimeTests.swift */; };
@@ -1462,6 +1463,7 @@
 		A90920261127000000000012 /* QTAlignmentPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QTAlignmentPanelController.swift; sourceTree = "<group>"; };
 		A90920261127000000000013 /* QTSourceChunkerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QTSourceChunkerTests.swift; sourceTree = "<group>"; };
 		A90920261127000000000014 /* QTAlignmentParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QTAlignmentParserTests.swift; sourceTree = "<group>"; };
+		A10020261127000000000011 /* AppleIntelligenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleIntelligenceService.swift; sourceTree = "<group>"; };
 		FED70C029AC2438A8EBE25F1 /* AppPathManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPathManager.swift; sourceTree = "<group>"; };
 		60ECE5EBBB5940D5A7462B40 /* QueryModelCancellationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryModelCancellationTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1538,6 +1540,14 @@
 				A90920261127000000000012 /* QTAlignmentPanelController.swift */,
 			);
 			path = Alignment;
+			sourceTree = "<group>";
+		};
+		A10020261127000000000001 /* AppleIntelligence */ = {
+			isa = PBXGroup;
+			children = (
+				A10020261127000000000011 /* AppleIntelligenceService.swift */,
+			);
+			path = AppleIntelligence;
 			sourceTree = "<group>";
 		};
 		02DEDC0420260430000000C1 /* Markdown */ = {
@@ -2164,6 +2174,7 @@
 				03A1B2C52F70000100A1B2C3 /* MiniMax */,
 				40F5D52A2D65B1A200EDB997 /* DeepSeek */,
 				036463682CB62B6600D0D6CC /* Apple */,
+				A10020261127000000000001 /* AppleIntelligence */,
 				03779F0D2BB256A7008D3C42 /* OpenAI */,
 				036D627F2BCAB5C6002C95C7 /* BuiltInAI */,
 				0A9AFBA92B7F8D6A0064C9A8 /* CustomOpenAI */,
@@ -4527,6 +4538,7 @@
 				A60020260000000000000023 /* QuickTranslateUninstaller.swift in Sources */,
 				A90920261127000000000021 /* QTSourceChunker.swift in Sources */,
 				A90920261127000000000022 /* QTAlignmentPanelController.swift in Sources */,
+				A10020261127000000000021 /* AppleIntelligenceService.swift in Sources */,
 				BFC431E797E945B795B81589 /* AppPathManager.swift in Sources */,
 				44476FC198C54239B507098E /* AppPathManager+Codex.swift in Sources */,
 				78F5EB4FCA084046AD550B98 /* AppPathManager+Logs.swift in Sources */,

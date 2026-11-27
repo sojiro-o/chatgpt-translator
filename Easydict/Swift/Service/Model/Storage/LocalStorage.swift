@@ -84,9 +84,22 @@ final class LocalStorage: NSObject {
     func allServiceTypes(_ windowType: EZWindowType) -> [String] {
         let allServiceTypesKey = serviceTypesKey(of: windowType)
 
-        guard let storedTypes = userDefaults.array(forKey: allServiceTypesKey) as? [String] else {
+        guard var storedTypes = userDefaults.array(forKey: allServiceTypesKey) as? [String] else {
             userDefaults.set(defaultServiceTypeIDs, forKey: allServiceTypesKey)
+            for typeId in defaultServiceTypeIDs {
+                ensureDefaultServiceInfoIfNeeded(serviceTypeId: typeId, windowType: windowType)
+            }
             return defaultServiceTypeIDs
+        }
+
+        var didChange = false
+        for defaultTypeId in defaultServiceTypeIDs where !storedTypes.contains(defaultTypeId) {
+            storedTypes.append(defaultTypeId)
+            ensureDefaultServiceInfoIfNeeded(serviceTypeId: defaultTypeId, windowType: windowType)
+            didChange = true
+        }
+        if didChange {
+            userDefaults.set(storedTypes, forKey: allServiceTypesKey)
         }
 
         return storedTypes
@@ -232,10 +245,13 @@ final class LocalStorage: NSObject {
                 uuid: components.uuid,
                 type: baseType,
                 enabled: enabled,
-                enabledQuery: queryCount == 0,
+                enabledQuery: true,
                 windowType: windowType
             )
         info.enabled = enabled
+        if enabled {
+            info.enabledQuery = true
+        }
         setServiceInfo(info, windowType: windowType)
     }
 
@@ -383,6 +399,12 @@ final class LocalStorage: NSObject {
 
     private let defaultServiceTypeIDs: [String] = [
         ServiceType.codexCLI.rawValue,
+        ServiceType.apple.rawValue,
+        ServiceType.appleIntelligence.rawValue,
+    ]
+
+    private let defaultEnabledServiceTypeIDs: Set<String> = [
+        ServiceType.codexCLI.rawValue,
     ]
 
     /// Raw dictionary backing service query statistics.
@@ -411,24 +433,26 @@ final class LocalStorage: NSObject {
             let serviceTypeIds = allServiceTypes(windowType)
 
             for serviceTypeId in serviceTypeIds {
-                let components = serviceIdentifierComponents(from: serviceTypeId)
-                let rawType = components.rawType
-                let uuid = components.uuid
-                let baseType = ServiceType(rawValue: rawType)
-
-                if serviceInfo(withType: baseType, serviceId: uuid, windowType: windowType) == nil {
-                    let serviceInfo = QueryServiceConfiguration(
-                        uuid: uuid,
-                        type: baseType,
-                        enabled: true,
-                        enabledQuery: queryCount == 0,
-                        windowType: windowType
-                    )
-
-                    serviceInfo.enabled = defaultServiceTypeIDs.contains(rawType)
-                    setServiceInfo(serviceInfo, windowType: windowType)
-                }
+                ensureDefaultServiceInfoIfNeeded(serviceTypeId: serviceTypeId, windowType: windowType)
             }
+        }
+    }
+
+    private func ensureDefaultServiceInfoIfNeeded(serviceTypeId: String, windowType: EZWindowType) {
+        let components = serviceIdentifierComponents(from: serviceTypeId)
+        let rawType = components.rawType
+        let uuid = components.uuid
+        let baseType = ServiceType(rawValue: rawType)
+
+        if serviceInfo(withType: baseType, serviceId: uuid, windowType: windowType) == nil {
+            let serviceInfo = QueryServiceConfiguration(
+                uuid: uuid,
+                type: baseType,
+                enabled: defaultEnabledServiceTypeIDs.contains(rawType),
+                enabledQuery: true,
+                windowType: windowType
+            )
+            setServiceInfo(serviceInfo, windowType: windowType)
         }
     }
 
@@ -438,7 +462,7 @@ final class LocalStorage: NSObject {
     ///   - windowType: Window the service belongs to.
     private func updateServiceInfo(_ service: QueryService, windowType: EZWindowType) {
         let info = serviceInfo(withType: service.serviceType(), serviceId: service.uuid, windowType: windowType)
-        service.enabled = info?.enabled ?? true
+        service.enabled = info?.enabled ?? defaultEnabledServiceTypeIDs.contains(service.serviceType().rawValue)
         service.enabledQuery = info?.enabledQuery ?? true
         service.windowType = windowType
         service.uuid = info?.uuid ?? service.uuid

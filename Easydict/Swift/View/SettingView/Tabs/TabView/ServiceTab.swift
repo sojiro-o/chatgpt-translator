@@ -92,7 +92,7 @@ enum ServiceTabSelection: Hashable {
 class ServiceTabViewModel: ObservableObject {
     // MARK: Lifecycle
 
-    init(windowType: EZWindowType = .fixed) {
+    init(windowType: EZWindowType = .mini) {
         self.windowType = windowType
         let items = Self.loadServiceItems(windowType)
         self.serviceItems = items
@@ -242,6 +242,9 @@ class ServiceTabViewModel: ObservableObject {
     func setServiceEnabled(_ enabled: Bool, for item: ServiceListItem) {
         if selectedService?.serviceTypeWithUniqueIdentifier() == item.id {
             selectedService?.enabled = enabled
+            if enabled {
+                selectedService?.enabledQuery = true
+            }
             if let selectedService {
                 LocalStorage.shared().setService(selectedService, windowType: windowType)
             }
@@ -273,12 +276,16 @@ class ServiceTabViewModel: ObservableObject {
         }
     }
 
+    private static let supportedServiceTypes: [ServiceType] = [
+        .codexCLI,
+        .apple,
+        .appleIntelligence,
+    ]
+
     private static func loadServiceItems(_ windowType: EZWindowType) -> [ServiceListItem] {
-        let filteredTypeIds = LocalStorage.shared().allServiceTypes(windowType).filter { typeId in
-            QueryServiceFactory.shared.metadata(withTypeId: typeId)?.serviceType == .codexCLI
-        }
-        let codexTypeIds = filteredTypeIds.isEmpty ? [ServiceType.codexCLI.rawValue] : filteredTypeIds
-        return serviceItems(from: codexTypeIds, windowType: windowType)
+        _ = LocalStorage.shared().allServiceTypes(windowType)
+        let serviceTypeIds = supportedServiceTypes.map(\.rawValue)
+        return serviceItems(from: serviceTypeIds, windowType: windowType)
     }
 
     private static func loadAvailableServiceItems(_ windowType: EZWindowType) -> [ServiceListItem] {

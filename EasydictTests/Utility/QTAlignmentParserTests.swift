@@ -124,4 +124,43 @@ struct QTAlignmentParserTests {
         #expect(QTAlignmentParser.stripMarkers(from: "[[1]]こんにちは[[12]") == "こんにちは")
         #expect(QTAlignmentParser.stripMarkers(from: "[[1]]こんにちは[[12]]世界") == "こんにちは世界")
     }
+
+    @Test("Applies alignment to StreamService results and validates AppleIntelligenceService helpers", .tags(.utilities, .unit))
+    func testApplyAlignmentAndAppleIntelligenceHelpers() {
+        let service = AppleIntelligenceService()
+        #expect(service.serviceType() == .appleIntelligence)
+        #expect(service.apiKeyRequirement() == .none)
+        #expect(service.iconName() == ServiceType.apple.rawValue)
+        #expect(QueryServiceFactory.shared.service(withTypeId: ServiceType.appleIntelligence.rawValue) is AppleIntelligenceService)
+
+        #expect(AppleIntelligenceService.delta(from: "", to: "[[1]]こんにちは") == "[[1]]こんにちは")
+        #expect(AppleIntelligenceService.delta(from: "[[1]]こんにちは", to: "[[1]]こんにちは[[2]]世界") == "[[2]]世界")
+        #expect(AppleIntelligenceService.delta(from: "[[1]]こんにちは", to: "[[1]]こんにちは") == "")
+
+        #expect(throws: Never.self) {
+            try AppleIntelligenceService.validateSourceLength(String(repeating: "a", count: 1500))
+        }
+        #expect(throws: QueryError.self) {
+            try AppleIntelligenceService.validateSourceLength(String(repeating: "a", count: 1501))
+        }
+
+        _ = service.resetServiceResult()
+        let sourceText = "Hello world"
+        let chunks = [QTSourceChunk(id: 1, range: NSRange(location: 0, length: 11))]
+        QTAlignmentParser.applyAlignment(
+            to: service,
+            rawText: "[[1]]こんにちは世界",
+            sourceText: sourceText,
+            sourceChunks: chunks
+        )
+        #expect(service.result?.alignment?.translationText == "こんにちは世界")
+
+        QTAlignmentParser.applyAlignment(
+            to: service,
+            rawText: "こんにちは世界",
+            sourceText: sourceText,
+            sourceChunks: chunks
+        )
+        #expect(service.result?.alignment == nil)
+    }
 }

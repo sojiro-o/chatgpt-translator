@@ -141,13 +141,25 @@ public class AppleTranslation: NSObject {
     }
 
     @MainActor
+    public func updateAttachedWindow(_ window: NSWindow?) {
+        guard let window else { return }
+        if attachedWindow !== window || translationController.view.window !== window {
+            attachedWindow = window
+            setupTranslationView()
+        }
+    }
+
+    @MainActor
     private func setupTranslationView() {
         // TranslationView must be added to a window, otherwise it will not work.
         if let attachedWindow {
             let translationView = translationController.view
-            attachedWindow.contentView?.addSubview(translationView)
+            if translationView.superview !== attachedWindow.contentView {
+                translationView.removeFromSuperview()
+                attachedWindow.contentView?.addSubview(translationView)
+            }
             translationView.isHidden = true
-        } else {
+        } else if translationWindow == nil {
             translationWindow = NSWindow(contentViewController: translationController)
             translationWindow?.title = "Translation"
             translationWindow?.setContentSize(CGSize(width: 200, height: 200))

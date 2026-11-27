@@ -165,19 +165,12 @@ final class CodexCLIService: StreamService {
                             throw CancellationError()
                         }
                         self.tokenUsage = result.usage
-                        if let sourceChunks {
-                            var rawFinalText = self.getFinalResultText(result.text).trim()
-                            if self.hideThinkTagContent {
-                                rawFinalText = rawFinalText.filterThinkTagContent().trim()
-                            }
-                            self.result?.alignment = QTAlignmentParser.parse(
-                                rawTranslation: rawFinalText,
-                                sourceText: text,
-                                sourceChunks: sourceChunks
-                            )
-                        } else {
-                            self.result?.alignment = nil
-                        }
+                        QTAlignmentParser.applyAlignment(
+                            to: self,
+                            rawText: result.text,
+                            sourceText: text,
+                            sourceChunks: sourceChunks
+                        )
                     }
                     continuation.finish()
                 } catch {

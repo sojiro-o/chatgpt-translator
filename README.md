@@ -7,7 +7,7 @@ QuickTranslate は、macOS 向け翻訳アプリ [Easydict](https://github.com/t
 - リポジトリ: https://github.com/sojiro-o/chatgpt-translator
 - 対応環境: macOS 13 以降（macOS 15 以降を推奨）、Intel / Apple Silicon 両対応
 - UI・翻訳方向: 日本語 UI、英語 → 日本語翻訳（英日混在に対応）
-- 翻訳エンジン: ChatGPT（Codex 経由、ChatGPT Plus の利用枠を使用。API キー不要）
+- 翻訳エンジン: ChatGPT（既定。Codex 経由、ChatGPT Plus の利用枠を使用。API キー不要）、Apple 翻訳（Mac 内）、Apple Intelligence（Mac 内）
 - 常駐形式: メニューバー常駐（Dock には表示されません）
 
 ## 使い方
@@ -41,6 +41,16 @@ QuickTranslate は、macOS 向け翻訳アプリ [Easydict](https://github.com/t
 - 1 回の `⌘C`、キー長押し、2 回の `⌘C` の間に他のキーを押した場合、アプリを切り替えた場合はポップアップを出しません。
 - QuickTranslate 自身のウィンドウ内でのコピーは無視します。
 - テキスト以外（画像・ファイル）、パスワード管理アプリが「機密」と印を付けたクリップボード内容、10,000 文字を超えるテキストは送信しません。
+
+## 翻訳エンジン
+
+設定の **「サービス」** タブで、次の 3 つの翻訳エンジンをそれぞれオン／オフできます。複数オンにすると、ポップアップに各エンジンの訳が縦に並ぶため、その場で訳を比べられます。
+
+- **ChatGPT**（既定でオン）: 公式 Codex（app-server）経由で翻訳します。ChatGPT Plus 等の利用枠を使用し、API キーは不要です。「原文との対応」表示に対応しています。
+- **Apple 翻訳（Mac 内）**（既定でオフ）: macOS 15 以降の `Translation` フレームワークを使って Mac 内で翻訳します。無料・外部通信なしで、ChatGPT の利用枠を消費しません。初回のみ、macOS が英語・日本語の言語データのダウンロードを求めることがあります。「原文との対応」は表示されません。
+- **Apple Intelligence（Mac 内）**（既定でオフ）: macOS 26 以降の Apple Silicon Mac（システム設定で Apple Intelligence がオン）で、`FoundationModels`（端末内の言語モデル）を使って Mac 内で翻訳します。無料・外部通信なしで、ChatGPT の利用枠を消費しません。端末内モデルの文脈長の都合により、原文は約 1,500 文字までです。「原文との対応」表示を試みます（小さいモデルのため、番号付けに失敗した場合は対応ボタンが表示されません）。
+
+※ 訳の質は一般に **ChatGPT ＞ Apple 翻訳／Apple Intelligence** です。ChatGPT の利用枠を節約したい場合や、外部へ送信せずに Mac 内だけで訳したい場合、訳を並べて比較したい場合に Apple 翻訳・Apple Intelligence を併用できます。
 
 ## インストール
 
@@ -174,7 +184,7 @@ API キーは不要で、入力欄もありません。API 従量課金に切り
 設定ウィンドウのタブは **一般 / サービス / ショートカット / 情報** のみです。
 
 - **ショートカット**: 「⌘C を2回押して翻訳」のオン/オフ、2 回押しの判定時間（初期 600ms、200〜1500ms）
-- **サービス**: ChatGPT のみ表示（ログイン／ログアウト、モデル、思考量など）
+- **サービス**: ChatGPT、Apple 翻訳（Mac 内）、Apple Intelligence（Mac 内）の 3 つのみ表示（それぞれのオン/オフ、ChatGPT のログイン／ログアウト・モデル・思考量など）
 
 ## プライバシーと保存しないもの
 
@@ -185,6 +195,7 @@ API キーは不要で、入力欄もありません。API 従量課金に切り
 - ポップアップを閉じると原文・訳文への参照を手放します。
 - Codex 側も一時スレッド（ephemeral）で実行し、履歴保存（`history.persistence`）と Codex のログ出力をオフにしています。作業用の一時ディレクトリ（`$TMPDIR/quicktranslate-codex-<pid>`）はセッション終了・アプリ終了時に削除します。
 - Codex の MCP・ツール・Web 検索・ファイル書き込み・ネットワーク権限は無効で、送信前に隔離設定を毎回確認します。
+- **Apple 翻訳（Mac 内）** と **Apple Intelligence（Mac 内）** はどちらも Mac 内のモデルで処理し、原文・訳文を外部へ送信しません（Apple 翻訳で初回に必要な英語・日本語の言語データのダウンロードは macOS が行います）。
 
 ### 無効化した機能・外部サービス
 
@@ -194,7 +205,7 @@ API キーは不要で、入力欄もありません。API 従量課金に切り
 - 自動の更新確認（メニューの「アップデートを確認…」から手動で確認したときだけ通信します）
 - GitHub Copilot のモデル取得
 - 言語検出の Baidu / Google 問い合わせ
-- Youdao・DeepL・Built-in AI など他の翻訳サービス（既定で有効なのは ChatGPT のみで、設定のサービス一覧にも ChatGPT のみ表示されます）
+- Youdao・DeepL・Built-in AI など他の翻訳サービス（設定のサービス一覧に表示されるのは ChatGPT・Apple 翻訳（Mac 内）・Apple Intelligence（Mac 内）の 3 つのみで、既定で有効なのは ChatGPT のみです）
 
 ### OpenAI サーバー側での取り扱い
 
@@ -210,7 +221,8 @@ API キーは不要で、入力欄もありません。API 従量課金に切り
 | `chatgpt.com/backend-api/` | 翻訳 | ChatGPT（Codex 経由） |
 | `api.github.com` | 最新版の確認 | 「アップデートを確認…」を押したときだけ |
 
-これ以外の通信は既定では行いません（他サービスのコードは残っていますが、無効化しています）。
+- **Apple 翻訳（Mac 内）** と **Apple Intelligence（Mac 内）** による翻訳はすべて Mac 内で処理され、アプリから外部への通信は行いません（Apple 翻訳の言語データのダウンロードは macOS が行います）。
+- これ以外の通信は既定では行いません（他サービスのコードは残っていますが、無効化しています）。
 
 ## セキュリティ上の注意
 

@@ -740,7 +740,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Translate"
+            "value" : "Apple Translate (On-Device)"
           }
         },
         "es" : {
@@ -752,7 +752,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple 翻訳"
+            "value" : "Apple 翻訳（Mac 内）"
           }
         },
         "sk" : {
@@ -26647,6 +26647,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "訳文に対応情報を付けるため、出力がわずかに増えます"
+          }
+        }
+      }
+    },
+    "service.apple_intelligence.name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence (On-Device)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence（Mac 内）"
           }
         }
       }

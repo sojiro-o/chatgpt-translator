@@ -133,6 +133,7 @@ final class QueryServiceFactory: NSObject {
         .init(.deepL, DeepLService.self, "deepL_translate", apiKeyRequirement: .none),
         .init(.google, GoogleService.self, "google_translate", apiKeyRequirement: .none),
         .init(.apple, AppleService.self, "apple_translate", apiKeyRequirement: .none),
+        .init(.appleIntelligence, AppleIntelligenceService.self, "service.apple_intelligence.name", apiKeyRequirement: .none),
         .init(.baidu, BaiduService.self, "baidu_translate"),
         .init(.bing, BingService.self, "bing_translate", apiKeyRequirement: .none),
         .init(.volcano, VolcanoService.self, "volcano_translate"),

@@ -161,7 +161,10 @@
 
 - (void)windowDidResignKey:(NSNotification *)notification {
     //    MMLogInfo(@"windowDidResignKey: %@", self);
-    
+    if (self.attachedSheet != nil || self.sheets.count > 0) {
+        return;
+    }
+
     // Close floating window when losing focus if it's not pinned or main window.
     [EZWindowManager.shared closeFloatingWindowIfNotPinned:self.windowType exceptWindowType:EZWindowTypeMain];
 }

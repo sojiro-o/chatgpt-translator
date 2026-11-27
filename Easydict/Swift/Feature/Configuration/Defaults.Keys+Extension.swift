@@ -182,7 +182,7 @@ extension Defaults.Keys {
     static var vocabularyNotebookDirectory = Key<String>("vocabularyNotebookDirectory", default: "")
 
     static var enableAppleOfflineTranslation = Key<Bool>(
-        "enableAppleOfflineTranslation", default: false
+        "enableAppleOfflineTranslation", default: true
     )
     static var enableOCRTextNormalization = Key<Bool>(
         "enableOCRTextNormalization", default: false

@@ -34,10 +34,7 @@ public class AppleService: QueryService {
 
     /// Returns configuration items for the Apple translation service settings view.
     public override func configurationListItems() -> Any? {
-        if #available(macOS 15.0, *) {
-            return AppleTranslationConfigurationView()
-        }
-        return nil
+        nil
     }
 
     /// Supported languages dictionary
@@ -95,27 +92,25 @@ public class AppleService: QueryService {
         to targetLanguage: Language
     ) async throws
         -> QueryResult {
-        // Use macOS 15+ API to translate if available
-        if #available(macOS 15.0, *), MyConfiguration.shared.enableAppleOfflineTranslation {
-            let service = await getTranslationService()
-            if let service = service as? AppleTranslation {
-                let translatedText = try await service.translate(
-                    text: text,
-                    sourceLanguage: sourceLanguage,
-                    targetLanguage: targetLanguage
-                )
-
-                result.translatedResults = [translatedText]
-                return result
-            }
+        // QuickTranslate always uses on-device Apple Translation (macOS 15+) and never falls back to AppleScript.
+        guard #available(macOS 15.0, *),
+              let service = await getTranslationService() as? AppleTranslation
+        else {
+            throw QueryError(
+                type: .api,
+                message: "Apple 翻訳には macOS 15 以降が必要です"
+            )
         }
 
-        // Fallback to AppleScript-based translation
-        return try await translateWithAppleScript(
+        let translatedText = try await service.translate(
             text: text,
-            from: sourceLanguage,
-            to: targetLanguage
+            sourceLanguage: sourceLanguage,
+            targetLanguage: targetLanguage
         )
+
+        result.alignment = nil
+        result.translatedResults = [translatedText]
+        return result
     }
 
     @objc
@@ -158,7 +153,7 @@ public class AppleService: QueryService {
 
     private let ocrEnginee = AppleOCREngine()
     private let languageMapper = AppleLanguageMapper.shared
-    private let languageDetector = AppleLanguageDetector(enableDebugLog: true)
+    private let languageDetector = AppleLanguageDetector(enableDebugLog: false)
     private let speechService = AppleSpeechService()
 
     private var translationService: Any? // Use Any to avoid compile-time type checking
@@ -166,16 +161,41 @@ public class AppleService: QueryService {
     @MainActor
     private func getTranslationService() -> Any? {
         if #available(macOS 15.0, *) {
-            if translationService == nil {
-                let window = NSApplication.shared.windows.first
-                let service = AppleTranslation(attachedWindow: window)
-                service.enableTranslateSameLanguage = true
-                translationService = service
+            let targetWindow = resolveAttachedWindow()
+            if let existing = translationService as? AppleTranslation {
+                existing.updateAttachedWindow(targetWindow)
+                return existing
             }
-            return translationService
+            let service = AppleTranslation(attachedWindow: targetWindow)
+            service.enableTranslateSameLanguage = true
+            translationService = service
+            return service
         } else {
             return nil
         }
+    }
+
+    @MainActor
+    private func resolveAttachedWindow() -> NSWindow? {
+        let windowManager = EZWindowManager.shared()
+        if let queryWindow = windowManager.window(with: windowType), queryWindow.isVisible {
+            return queryWindow
+        }
+        if let floatingWindow = windowManager.floatingWindow, floatingWindow.isVisible {
+            return floatingWindow
+        }
+        if let keyWindow = NSApplication.shared.keyWindow, keyWindow.contentView != nil {
+            return keyWindow
+        }
+        let popButtonWindow = windowManager.popButtonWindow
+        if let visibleWindow = NSApplication.shared.windows.first(where: {
+            $0.isVisible && $0.contentView != nil && $0 !== popButtonWindow
+        }) {
+            return visibleWindow
+        }
+        return windowManager.window(with: windowType)
+            ?? windowManager.floatingWindow
+            ?? NSApplication.shared.windows.first
     }
 
     /// Fallback translation using AppleScript

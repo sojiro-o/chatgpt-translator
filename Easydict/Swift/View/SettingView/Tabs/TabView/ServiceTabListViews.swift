@@ -398,11 +398,20 @@ private struct ServiceIcon: View {
     let containerSize: CGFloat
 
     var body: some View {
-        Image(type.rawValue)
+        Image(iconAssetName)
             .resizable()
             .scaledToFit()
             .frame(width: iconSize, height: iconSize)
             .frame(width: containerSize, height: containerSize)
+    }
+
+    private var iconAssetName: String {
+        switch type {
+        case .appleIntelligence:
+            ServiceType.apple.rawValue
+        default:
+            type.rawValue
+        }
     }
 }
 

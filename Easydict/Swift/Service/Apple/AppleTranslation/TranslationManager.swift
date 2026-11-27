@@ -29,6 +29,10 @@ class TranslationManager: ObservableObject {
         sourceText = text
 
         return try await withCheckedThrowingContinuation { continuation in
+            if let existing = translationContinuation {
+                translationContinuation = nil
+                existing.resume(throwing: CancellationError())
+            }
             translationContinuation = continuation
 
             if configuration == nil {

@@ -607,6 +607,28 @@ enum QTAlignmentParser {
         )
     }
 
+    /// Strips final result wrappers and parses phrase alignment markers onto `service.result?.alignment`.
+    static func applyAlignment(
+        to service: StreamService,
+        rawText: String,
+        sourceText: String,
+        sourceChunks: [QTSourceChunk]?
+    ) {
+        guard let sourceChunks else {
+            service.result?.alignment = nil
+            return
+        }
+        var rawFinalText = service.getFinalResultText(rawText).trim()
+        if service.hideThinkTagContent {
+            rawFinalText = rawFinalText.filterThinkTagContent().trim()
+        }
+        service.result?.alignment = parse(
+            rawTranslation: rawFinalText,
+            sourceText: sourceText,
+            sourceChunks: sourceChunks
+        )
+    }
+
     // MARK: Private
 
     private static let completeMarkerRegex = try! NSRegularExpression(pattern: #"\[\[([0-9]{1,3})\]\]"#)
